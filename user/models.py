@@ -8,7 +8,7 @@ class Gender(models.Model):
 
 class UserDetail(models.Model):
     name         = models.CharField(max_length = 50)
-    phone_number = models.IntegerField()
+    phone_number = models.CharField(max_length = 50)
     birth_date   = models.DateField()
     gender       = models.ForeignKey(Gender, on_delete = models.SET_NULL, null = True)
 

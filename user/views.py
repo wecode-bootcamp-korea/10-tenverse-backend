@@ -16,13 +16,12 @@ from .models           import (
 
 class SignUpView(View):
     def post(self, request):
-
         data = json.loads(request.body)
         try:
-            if User.objects.filter(email = data['email']).exists():
-                return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status = 400)
             if re.search(re.compile("[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-zA-Z]+$"), data['email']):
                 if re.search(re.compile("^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%&*])[a-zA-Z\d!@#$%&*]{8,}$"), data['password']):
+                    if User.objects.filter(email=data['email']).exists():
+                        return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status=400)
                     hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
                     UserDetail(
                         name         = data['name'],
@@ -33,7 +32,7 @@ class SignUpView(View):
                     User(
                         email       = data['email'],
                         password    = hashed_password.decode('utf-8'),
-                        user_detail = UserDetail.objects.get(name = data['name'], phone_number = data['phone_number'])
+                        user_detail = UserDetail.objects.get(phone_number = data['phone_number'])
                     ).save()
                     return JsonResponse({'message' : 'SUCCESS'}, status = 200)
             return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
@@ -49,6 +48,7 @@ class SignInView(View):
                 if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                    access_token =  jwt.encode({'user_id' : user.id}, SECRET_KEY, ALGORITHM)
                    return JsonResponse({'access_token' : access_token.decode('utf-8')}, status = 200)
+                return JsonResponse({'message' : 'UNAUTHORIZED'}, status = 401)
             return JsonResponse({'message' : 'UNAUTHORIZED'}, status = 401)
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)

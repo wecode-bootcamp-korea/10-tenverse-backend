@@ -10,7 +10,6 @@ from converse.settings import SECRET_KEY
 from my_settings       import ALGORITHM
 from .models           import (
     User,
-    UserDetail,
     Gender,
 )
 
@@ -23,16 +22,13 @@ class SignUpView(View):
                     if User.objects.filter(email=data['email']).exists():
                         return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status=400)
                     hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-                    UserDetail(
+                    User(
                         name         = data['name'],
                         phone_number = data['phone_number'],
                         birth_date   = data['birth_date'],
-                        gender_id    = Gender.objects.get(name = data['gender']).id
-                    ).save()
-                    User(
-                        email       = data['email'],
-                        password    = hashed_password.decode('utf-8'),
-                        user_detail = UserDetail.objects.get(phone_number = data['phone_number'])
+                        gender_id    = Gender.objects.get(name = data['gender']).id,
+                        email        = data['email'],
+                        password     = hashed_password.decode('utf-8'),
                     ).save()
                     return JsonResponse({'message' : 'SUCCESS'}, status = 200)
             return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)

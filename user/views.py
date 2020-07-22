@@ -13,22 +13,25 @@ from .models           import (
     Gender,
 )
 
-def validation(email, password):
-    if len(password) < 8:
-        return False
-    email_lambdas = [
+def email_validation(email):
+    lambdas = [
         lambda x : '@' in x,
         lambda x : '.' in x
     ]
-    password_lambdas = [
-        lambda x : x in ['!', '@', '#', '$', '%', '&', '*'],
-        lambda x : x in ['0','1','2','3','4','5','6','7','8','9']
-    ]
-    for lambdas in email_lambdas:
-        if not lambdas(email):
+    for lam in lambdas:
+        if not lam(email):
             return False
-    for lambdas in password_lambdas:
-        if not any(lambdas(i) for i in password):
+    return True
+
+def password_validation(password):
+    if len(password) < 8:
+        return False
+    lambdas = [
+        lambda x : x in ['!', '@', '#', '$', '%', '&', '*'],
+        lambda x : x in [str(i) for i in range(10)]
+    ]
+    for lam in lambdas:
+        if not any(lam(i) for i in password):
             return False
     return True
 
@@ -36,10 +39,12 @@ class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if not validation(data['email'], data['password']):
+            if not(email_validation(data['email']) or password_validation(data['password'])):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
             if User.objects.filter(email=data['email']).exists():
                 return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status=400)
+            if User.objects.filter(phone_number=data['phone_number']).exists():
+                return JsonResponse({'message' : 'EXISTING_PHONENUMBER'}, status=400)
             hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
             User(
                 name         = data['name'],
@@ -57,7 +62,7 @@ class SignInView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if not validation(data['email'], data['password']):
+            if not email_validation(data['email']):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
             if User.objects.filter(email = data['email']).exists():
                 user = User.objects.get(email = data['email'])

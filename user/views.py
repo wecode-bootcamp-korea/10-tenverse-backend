@@ -3,8 +3,9 @@ import jwt
 import bcrypt
 import re
 
-from django.views import View
-from django.http  import JsonResponse
+from django.views       import View
+from django.http        import JsonResponse
+from django.db.models   import Q
 
 from converse.settings import SECRET_KEY
 from my_settings       import ALGORITHM
@@ -41,10 +42,8 @@ class SignUpView(View):
         try:
             if not(email_validation(data['email']) or password_validation(data['password'])):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
-            if User.objects.filter(email=data['email']).exists():
+            if User.objects.filter(Q(email=data['email']) | Q(phone_number=data['phone_number'])).exists():
                 return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status=400)
-            if User.objects.filter(phone_number=data['phone_number']).exists():
-                return JsonResponse({'message' : 'EXISTING_PHONENUMBER'}, status=400)
             hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
             User(
                 name         = data['name'],

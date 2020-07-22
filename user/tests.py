@@ -1,16 +1,18 @@
 import json
 
-from .models     import (
-    Gender,
-    User
-)
 from django.test import (
     TestCase,
     Client,
 )
 
-client = Client()
+from .models import (
+    Gender,
+    User
+)
+
 class SignUpTest(TestCase):
+    client = Client()
+
     def setUp(self):
         Gender.objects.create(name='남성')
 

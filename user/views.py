@@ -21,26 +21,26 @@ def email_validation(email):
     ]
     for lam in lambdas:
         if not lam(email):
-            return False
-    return True
+            return True
+    return False
 
 def password_validation(password):
     if len(password) < 8:
-        return False
+        return True
     lambdas = [
         lambda x : x in ['!', '@', '#', '$', '%', '&', '*'],
         lambda x : x in [str(i) for i in range(10)]
     ]
     for lam in lambdas:
         if not any(lam(i) for i in password):
-            return False
-    return True
+            return True
+    return False
 
 class SignUpView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if not(email_validation(data['email']) or password_validation(data['password'])):
+            if email_validation(data['email']) or password_validation(data['password']):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
             if User.objects.filter(Q(email=data['email']) | Q(phone_number=data['phone_number'])).exists():
                 return JsonResponse({'message' : 'EXISTING_ACCOUNT'}, status=400)
@@ -61,7 +61,7 @@ class SignInView(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            if not email_validation(data['email']):
+            if email_validation(data['email']):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
             if User.objects.filter(email = data['email']).exists():
                 user = User.objects.get(email = data['email'])

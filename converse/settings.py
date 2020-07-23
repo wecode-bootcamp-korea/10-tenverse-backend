@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = my_settings.SECRET['secret']
-
+ALGORITHM = my_settings.SECRET['algorithm']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'user',
+    'product',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,11 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
+
+EMAIL_BACKEND       = my_settings.EMAIL['EMAIL_BACKEND']
+EMAIL_USE_TLS       = my_settings.EMAIL['EMAIL_USE_TLS']
+EMAIL_PORT          = my_settings.EMAIL['EMAIL_PORT']
+EMAIL_HOST          = my_settings.EMAIL['EMAIL_HOST']
+EMAIL_HOST_USER     = my_settings.EMAIL['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = my_settings.EMAIL['EMAIL_HOST_PASSWORD']
+

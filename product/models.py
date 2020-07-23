@@ -46,8 +46,8 @@ class GenderSegmentation(models.Model):
 
 class Detail(models.Model):
     main_detail   = models.CharField(max_length = 100)
-    sub_detail    = models.CharField(max_length = 300)
-    feature       = models.CharField(max_length = 300)
+    sub_detail    = models.CharField(max_length = 500)
+    feature       = models.CharField(max_length = 500)
     feature_image = models.CharField(max_length = 300)
     name          = models.CharField(max_length = 50)
 
@@ -58,10 +58,9 @@ class Shoe(models.Model):
     main_category       = models.ForeignKey(MainCategory, on_delete = models.SET_NULL, null = True)
     shoe_category       = models.ForeignKey(ShoeCategory, on_delete = models.SET_NULL, null = True)
     type_filter         = models.ForeignKey(TypeFilter, on_delete   = models.SET_NULL, null = True)
-    detail              = models.ForeignKey(Detail, on_delete       = models.SET_NULL, null = True)
+    detail              = models.ForeignKey(Detail, on_delete = models.SET_NULL, null = True)
     gender_segmentation = models.ForeignKey(GenderSegmentation, on_delete = models.SET_NULL, null = True)
     price               = models.IntegerField()
-    height              = models.CharField(max_length = 50)
     size                = models.ManyToManyField(Size, through = 'ShoeSize')
     color               = models.ManyToManyField(Color, through = 'ShoeColor')
 
@@ -82,8 +81,8 @@ class MainImage(models.Model):
         db_table = 'main_images'
 
 class ShoeColor(models.Model):
-    shoe  = models.ForeignKey(Shoe, on_delete         = models.SET_NULL, null = True)
-    color = models.ForeignKey(Color, on_delete        = models.SET_NULL, null = True)
+    shoe  = models.ForeignKey(Shoe, on_delete = models.SET_NULL, null = True)
+    color = models.ForeignKey(Color, on_delete = models.SET_NULL, null = True)
     image = models.OneToOneField(MainImage, on_delete = models.SET_NULL, null = True)
     
     class Meta:

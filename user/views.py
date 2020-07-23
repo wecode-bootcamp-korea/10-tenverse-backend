@@ -92,10 +92,12 @@ class SignInView(View):
                 return JsonResponse({'message' : 'VALIDATION_ERROR'}, status=401)
             if User.objects.filter(email = data['email']).exists():
                 user = User.objects.get(email = data['email'])
-                if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                    access_token =  jwt.encode({'user_id' : user.id}, SECRET_KEY, ALGORITHM)
-                    return JsonResponse({'access_token' : access_token.decode('utf-8')}, status = 200)
-                return JsonResponse({'message' : 'UNAUTHORIZED'}, status = 401)
+                if user.is_active:
+                    if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                        access_token =  jwt.encode({'user_id' : user.id}, SECRET_KEY, ALGORITHM)
+                        return JsonResponse({'access_token' : access_token.decode('utf-8')}, status = 200)
+                    return JsonResponse({'message' : 'UNAUTHORIZED'}, status=401)
+                return JsonResponse({'message' : 'INACTIVE'}, status = 401)
             return JsonResponse({'message' : 'UNAUTHORIZED'}, status = 401)
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)

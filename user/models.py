@@ -13,6 +13,7 @@ class User(models.Model):
     phone_number = models.CharField(max_length = 50, unique = True)
     birth_date   = models.DateField()
     gender       = models.ForeignKey(Gender, on_delete = models.SET_NULL, null = True)
+    is_active    = models.BooleanField(default = False)
 
     class Meta:
         db_table = 'users'

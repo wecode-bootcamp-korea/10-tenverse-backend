@@ -27,34 +27,13 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
-        shoe_list   = []
-        shoes       = Shoe.objects.prefetch_related('shoecolor_set').select_related('detail').all()
-        for shoe in shoes:
-            name             = shoe.detail.name
-            price            = shoe.price
-            colorfilter_list = []
-            shoecolors       = shoe.shoecolor_set.prefetch_related('image').prefetch_related('subimage_set').filter(shoe=shoe.id)
-            
-            for colors in shoecolors:
-                image        = colors.image.image
-                sub_image    = colors.subimage_set.get(is_hover=1).image
-                colorfilters = shoe.color.select_related('color_category').filter(id = colors.color_id)
-
-                for color in colorfilters:
-                    colorfilter_list.append({
-                        'id'    : color.id,
-                        'color' : color.color_category.name
-                    })
-                
-                shoe_list.append({
-                    'name'        : name,
-                    'price'       : price,
-                    'image'       : image,
-                    'hover_image' : sub_image,
-                    'colors'      : colorfilter_list
-                })
-                
-            for shoe in shoe_list:
-                if shoe['name'] == name:
-                    shoe['colors'] = colorfilter_list
+        start_time = time.time()
+        shoes = ShoeColor.objects.filter(**{
+            'subimage__is_hover' : 'True'
+        }).values('id','shoe__id','shoe__detail__name', 'shoe__price', 'image__image', 'subimage__image')
+        shoe_list = [[shoe] for shoe in shoes]
+        for i in range(len(shoe_list)):
+            shoe_list[i].append(list(Color.objects.filter(**{
+                'shoecolor__shoe__id' : shoe_list[i][0]['shoe__id']
+            }).values('shoecolor__id', 'color_category__name')))
         return JsonResponse({'products' : shoe_list}, status=200)

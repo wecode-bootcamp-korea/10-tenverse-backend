@@ -22,7 +22,7 @@ class CategoryView(View):
         filter_list = {
             'gender_filters' : [gender.name for gender in GenderSegmentation.objects.all()],
             'color_filters'  : [color.name for color in ColorFilter.objects.all()],
-            'type-filters'   : [typefilter.name for typefilter in TypeFilter.objects.all()],
+            'type_filters'   : [typefilter.name for typefilter in TypeFilter.objects.all()],
             'size_filters'   : [size.name for size in Size.objects.all()]
         }
         return JsonResponse({'filters' : filter_list}, status=200)

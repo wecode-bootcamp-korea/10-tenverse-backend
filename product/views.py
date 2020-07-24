@@ -19,18 +19,18 @@ from .models import (
 )
 class CategoryView(View):
     def get(self, request):
-        filter_list = [{
+        filter_list = {
             'gender_filters' : [gender.name for gender in GenderSegmentation.objects.all()],
             'color_filters'  : [color.name for color in ColorFilter.objects.all()],
             'type-filters'   : [typefilter.name for typefilter in TypeFilter.objects.all()],
             'size_filters'   : [size.name for size in Size.objects.all()]
-        }]
+        }
         return JsonResponse({'filters' : filter_list}, status=200)
 
 class ShoesView(View):
     def get(self, request):
         shoe_list   = []
-        shoes       = Shoe.objects.all().prefetch_related('color').select_related('detail').
+        shoes       = Shoe.objects.all().prefetch_related('color').select_related('detail')
         for shoe in shoes:
             name             = Detail.objects.get(id = shoe.detail_id).name
             price            = shoe.price

@@ -50,7 +50,8 @@ class Detail(models.Model):
     feature       = models.CharField(max_length = 500)
     feature_image = models.CharField(max_length = 300)
     name          = models.CharField(max_length = 50)
-
+    is_main       = models.BooleanField(default = False)
+    
     class Meta:
         db_table = 'details'
 
@@ -91,6 +92,7 @@ class ShoeColor(models.Model):
 class SubImage(models.Model):
     shoe_color = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
     image      = models.CharField(max_length = 300)
+    is_hover   = models.BooleanField(default = False)
 
     class Meta:
         db_table = 'sub_images'

@@ -1,5 +1,3 @@
-import time
-
 from django.views   import View
 from django.http    import JsonResponse
 
@@ -30,22 +28,22 @@ class CategoryView(View):
 class ShoesView(View):
     def get(self, request):
         shoe_list   = []
-        shoes       = Shoe.objects.all().prefetch_related('color').select_related('detail')
+        shoes       = Shoe.objects.prefetch_related('shoecolor_set').select_related('detail').all()
         for shoe in shoes:
-            name             = Detail.objects.get(id = shoe.detail_id).name
+            name             = shoe.detail.name
             price            = shoe.price
             colorfilter_list = []
-            shoecolors       = ShoeColor.objects.filter(shoe_id = shoe.id).select_related('image').prefetch_related('subimage_set')
+            shoecolors       = shoe.shoecolor_set.prefetch_related('image').prefetch_related('subimage_set').filter(shoe=shoe.id)
             
             for colors in shoecolors:
                 image        = colors.image.image
-                sub_image    = SubImage.objects.filter(shoe_color = colors).first().image
-                colorfilters = Color.objects.select_related('color_category').filter(id = colors.color_id)
+                sub_image    = colors.subimage_set.get(is_hover=1).image
+                colorfilters = shoe.color.select_related('color_category').filter(id = colors.color_id)
 
                 for color in colorfilters:
                     colorfilter_list.append({
                         'id'    : color.id,
-                        'color' : ColorFilter.objects.get(id=color.color_category.id).name
+                        'color' : color.color_category.name
                     })
                 
                 shoe_list.append({

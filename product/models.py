@@ -91,6 +91,7 @@ class ShoeColor(models.Model):
 class SubImage(models.Model):
     shoe_color = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
     image      = models.CharField(max_length = 300)
-
+    is_hover   = models.BooleanField(default = False)
+    
     class Meta:
         db_table = 'sub_images'

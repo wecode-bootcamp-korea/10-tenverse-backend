@@ -31,8 +31,9 @@ class ShoesView(View):
             'subimage__is_hover' : 'True'
         }).values('id','shoe__id','shoe__detail__name', 'shoe__price', 'image__image', 'subimage__image')
         shoe_list = [[shoe] for shoe in shoes]
+        
         for i in range(len(shoe_list)):
-            shoe_list[i].append(list(Color.objects.filter(**{
+            shoe_list[i].append({'color_list':list(Color.objects.filter(**{
                 'shoecolor__shoe__id' : shoe_list[i][0]['shoe__id']
-            }).values('shoecolor__id', 'color_category__name')))
+            }).values('shoecolor__id', 'color_category__name'))})
         return JsonResponse({'products' : shoe_list}, status=200)

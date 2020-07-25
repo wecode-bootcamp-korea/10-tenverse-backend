@@ -27,7 +27,6 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
-        start_time = time.time()
         shoes = ShoeColor.objects.filter(**{
             'subimage__is_hover' : 'True'
         }).values('id','shoe__id','shoe__detail__name', 'shoe__price', 'image__image', 'subimage__image')

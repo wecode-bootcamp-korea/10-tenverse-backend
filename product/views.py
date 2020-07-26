@@ -47,11 +47,11 @@ class DetailView(View):
                 main_image = F('image__image')
             ).values('id', 'main_image'))
             size_list = [size['shoe__size__name'] for size in product.values('shoe__size__name')]
-            shoe_detail.append({'options' : {
+            shoe_detail.append({
                 'sub_image'  : sub_image,
                 'color_list' : color_list,
                 'size_list'  : size_list
-            }})
+            })
             return JsonResponse({'product' : shoe_detail }, status=200)
         except IndexError:
             return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'})

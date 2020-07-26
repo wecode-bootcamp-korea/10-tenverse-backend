@@ -1,5 +1,6 @@
-from django.views   import View
-from django.http    import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
+from django.db.models import F
 
 from .models import (
     MainCategory,
@@ -23,24 +24,34 @@ class ShoesView(View):
 class DetailView(View):
     def get(self, request, product_id):
         try:
-            shoe = ShoeColor.objects.filter(**{
-                'id' : product_id
-            })
+            product = ShoeColor.objects.filter(id = product_id)
             
-            shoe_detail = list(shoe.values('id', 'shoe__detail__name', 'shoe__price', 'shoe__gender_segmentation__name', 'shoe__detail__main_detail','color__name', 'shoe__detail__sub_detail', 'shoe__detail__feature', 'shoe__detail__feature_image', 'image__image'))
+            shoe_detail = list(product.annotate(
+                name          = F('shoe__detail__name'),
+                price         = F('shoe__price'),
+                gender        = F('shoe__gender_segmentation__name'),
+                color_name    = F('color__name'),
+                main_detail   = F('shoe__detail__main_detail'),
+                sub_detail    = F('shoe__detail__sub_detail'),
+                features      = F('shoe__detail__feature'),
+                feature_image = F('shoe__detail__feature_image'),
+                main_image    = F('image__image')
+            ).values(
+                'id', 'name', 'price', 'gender', 'color_name', 'main_detail', 'sub_detail', 'features', 'feature_image', 'main_image'
+            ))
+            sub_image = [image['subimage__image'] for image in product.values('subimage__image')]
             
-            subimage_list = [image['subimage__image'] for image in shoe.values('subimage__image')]
-
-            shoe_color_list = list(ShoeColor.objects.filter(**{
-                'shoe__id' : shoe[0].shoe.id
-            }).values('id', 'image__image'))
-            
-            size_list = [size['shoe__size__name'] for size in shoe.values('shoe__size__name')]
-            shoe_detail.append({
-                'subimage_list' : subimage_list,
-                'color_list'    : shoe_color_list,
-                'size_list'     : size_list
-            })
-            return JsonResponse({'product' : list(shoe_detail)}, status=200)
+            color_list = list(ShoeColor.objects.filter(
+                shoe__id = list(product.values('shoe__id'))[0]['shoe__id']
+            ).annotate(
+                main_image = F('image__image')
+            ).values('id', 'main_image'))
+            size_list = [size['shoe__size__name'] for size in product.values('shoe__size__name')]
+            shoe_detail.append({'options' : {
+                'sub_image'  : sub_image,
+                'color_list' : color_list,
+                'size_list'  : size_list
+            }})
+            return JsonResponse({'product' : shoe_detail }, status=200)
         except IndexError:
             return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'})

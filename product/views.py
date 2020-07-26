@@ -41,7 +41,7 @@ class MainPageView(View):
         
         shoes.append({'page_three' : list(shoe.filter(**{
             'shoe__detail__name__contains' : '잭퍼셀',
-            'color__name' : '화이트'
+            'color__name'                  : '화이트'
         }))})
 
         return JsonResponse({'products' : shoes}, status=200)

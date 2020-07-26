@@ -1,6 +1,7 @@
-from django.views   import View
-from django.http    import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
 from django.db.models import F
+
 from .models import (
     MainCategory,
     ShoeCategory,

@@ -1,6 +1,6 @@
 from django.views   import View
 from django.http    import JsonResponse
-
+from django.db.models import F
 from .models import (
     MainCategory,
     ShoeCategory,
@@ -23,15 +23,25 @@ class ShoesView(View):
 
 class MainPageView(View):
     def get(self, request):
-        shoes = list(ShoeColor.objects.filter(**{
+        shoes = []
+        shoe = ShoeColor.objects.filter(**{
             'shoe__detail__is_main' : 'True',
-            'color__name__in'       : ['화이트', '노마드카키', '페일퍼티'],
             'subimage__is_hover'    : 'True'
-        }).values('id','shoe__detail__name','color_id__name','shoe_id__price','image__image', 'subimage__image'))
-        shoes.append(list(ShoeColor.objects.filter(**{
-            'shoe_id__detail__name' : '척테일러 올스타 리프트 캔버스',
-            'color_id__name'        : '블랙',
-            'subimage__is_hover'    : 'True'
-        }).values('id','shoe__detail__name','color_id__name','shoe_id__price','image__image', 'subimage__image'))[0])
+        }).annotate(
+            name       = F('shoe__detail__name'),
+            price      = F('shoe__price'),
+            main_image = F('image__image'),
+            sub_image  = F('subimage__image')
+        ).values('id','name','price','main_image','sub_image')
+        
+        shoes.append({'page_one' : list(shoe.filter(shoe__detail__name__contains = '척테일러'))})
+        
+        shoes.append({'page_two' : list(shoe.filter(color__name = '노마드카키'))})
+        
+        shoes.append({'page_three' : list(shoe.filter(**{
+            'shoe__detail__name__contains' : '잭퍼셀',
+            'color__name' : '화이트'
+        }))})
+
         return JsonResponse({'products' : shoes}, status=200)
 

@@ -1,5 +1,6 @@
-from django.views   import View
-from django.http    import JsonResponse
+from django.views     import View
+from django.http      import JsonResponse
+from django.db.models import F
 
 from .models import (
     MainCategory,
@@ -27,13 +28,21 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
-        shoes = ShoeColor.objects.filter(**{
-            'subimage__is_hover' : 'True'
-        }).values('id','shoe__id','shoe__detail__name', 'shoe__price', 'image__image', 'subimage__image')
+        shoes = ShoeColor.objects.filter(subimage__is_hover = 'True').annotate(
+            name       = F('shoe__detail__name'),
+            price      = F('shoe__price'),
+            main_image = F('image__image'),
+            sub_image  = F('subimage__image')
+        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')
+        
         shoe_list = [[shoe] for shoe in shoes]
         
         for i in range(len(shoe_list)):
-            shoe_list[i].append({'color_list':list(Color.objects.filter(**{
-                'shoecolor__shoe__id' : shoe_list[i][0]['shoe__id']
-            }).values('shoecolor__id', 'color_category__name'))})
+            shoe_list[i].append({
+                'color_list' : list(Color.objects.filter(shoecolor__shoe__id = shoe_list[i][0]['shoe__id']).annotate(
+                    shoe_id      = F('shoecolor__id'),
+                    color_filter = F('color_category__name')
+                ).values('shoe_id', 'color_filter'))
+            })
+        
         return JsonResponse({'products' : shoe_list}, status=200)

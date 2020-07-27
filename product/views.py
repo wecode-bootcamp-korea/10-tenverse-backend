@@ -37,7 +37,7 @@ class ShoesView(View):
             sub_image  = F('subimage__image')
         ).values(
             'id','shoe__id', 'name', 'price', 'main_image', 'sub_image'
-        )[:((int(page)+1)*20)-1]
+        )[int(page)*20:((int(page)+1)*20)-1]
 
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
         

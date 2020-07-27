@@ -42,10 +42,11 @@ class DetailView(View):
             sub_image = [image['subimage__image'] for image in product.values('subimage__image')]
             
             color_list = list(ShoeColor.objects.filter(
-                shoe__id = list(product.values('shoe__id'))[0]['shoe__id']
+                shoe__id = product.values('shoe__id').first()['shoe__id']
             ).annotate(
                 main_image = F('image__image')
             ).values('id', 'main_image'))
+
             size_list = [size['shoe__size__name'] for size in product.values('shoe__size__name')]
             shoe_detail.append({
                 'sub_image'  : sub_image,

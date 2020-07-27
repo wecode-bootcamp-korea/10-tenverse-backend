@@ -7,5 +7,5 @@ from .views import (
 
 urlpatterns = [
     path('', ShoesView.as_view()),
-    path('/<int:product_id>', DetailView.as_view())
+    path('/detail/<product_id>', DetailView.as_view())
 ]

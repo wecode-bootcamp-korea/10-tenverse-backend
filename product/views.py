@@ -52,6 +52,8 @@ class DetailView(View):
                 'color_list' : color_list,
                 'size_list'  : size_list
             })
-            return JsonResponse({'product' : shoe_detail }, status=200)
+            return JsonResponse({'product' : shoe_detail}, status=200)
         except IndexError:
-            return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'})
+            return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'}, status=400)
+        except ValueError:
+            return JsonResponse({'message' : 'VALUE_ERROR'}, status=400)

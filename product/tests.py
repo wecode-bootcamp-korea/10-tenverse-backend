@@ -32,13 +32,15 @@ class MainViewTest(TestCase):
             feature       = '척 70 핵트 패션',
             feature_image = 'image'
         )
+
         ColorFilter.objects.bulk_create([
             ColorFilter(name = 'khaki'),
             ColorFilter(name = 'black')
         ])
+
         Color.objects.bulk_create([
-            Color(color_category = ColorFilter.objects.get(id=1), name = '노마드카키'),
-            Color(color_category = ColorFilter.objects.get(id=2), name = '블랙')
+            Color(color_category = ColorFilter.objects.get(name='khaki'), name = '노마드카키'),
+            Color(color_category = ColorFilter.objects.get(name='black'), name = '블랙')
         ])
         TypeFilter.objects.create(name='스니커즈')
         GenderSegmentation.objects.create(name='남녀공용')
@@ -46,9 +48,9 @@ class MainViewTest(TestCase):
         Shoe.objects.create(
             main_category       = MainCategory.objects.get(id = 1),
             shoe_category       = ShoeCategory.objects.get(id = 1),
-            type_filter         = TypeFilter.objects.get(id = 1),
+            type_filter         = TypeFilter.objects.get(name='스니커즈'),
             detail              = Detail.objects.get(id = 1),
-            gender_segmentation = GenderSegmentation.objects.get(id = 1),
+            gender_segmentation = GenderSegmentation.objects.get(name='남녀공용'),
             price               = 99000,
         )
 
@@ -116,11 +118,15 @@ class MainViewTest(TestCase):
                     "color_list": [
                         {
                             "shoe_id"       : 1,
-                            "color_filter"  : "khaki"
+                            "color_filter"  : "khaki",
+                            "main_image"    : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
+                            "sub_image"     : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
                         },
                         {
                             "shoe_id"       : 2,
-                            "color_filter"  : "black"
+                            "color_filter"  : "black",
+                            "main_image"    : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=",
+                            "sub_image"     : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse="
                         }
                     ]
                 },
@@ -136,12 +142,130 @@ class MainViewTest(TestCase):
                     "color_list": [
                         {
                             "shoe_id"      : 1,
-                            "color_filter" : "khaki"
+                            "color_filter" : "khaki",
+                            "main_image"   : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
+                            "sub_image"    : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
                         },
                         {
-                            "shoe_id"      : 2,
-                            "color_filter" : "black"
-                            }
+                            "shoe_id"       : 2,
+                            "color_filter"  : "black",
+                            "main_image"    : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=",
+                            "sub_image"     : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse="
+                        }
                     ]
                 }
                 ]})
+
+class CategoryViewTest(TestCase):
+    maxDiff = None 
+
+    def setUp(self):
+        Size.objects.bulk_create([
+            Size(name=220),
+            Size(name=225),
+            Size(name=230),
+            Size(name=235),
+            Size(name=240),
+            Size(name=245),
+            Size(name=250),
+            Size(name=255),
+            Size(name=260),
+            Size(name=265),
+            Size(name=270),
+            Size(name=275),
+            Size(name=280),
+            Size(name=285),
+            Size(name=290),
+            Size(name=295),
+            Size(name=300)
+        ])
+        
+        ColorFilter.objects.bulk_create([
+            ColorFilter(name='black'),
+            ColorFilter(name='blue'),
+            ColorFilter(name='green'),
+            ColorFilter(name='indigo'),
+            ColorFilter(name='purple'),
+            ColorFilter(name='brown'),
+            ColorFilter(name='gray'),
+            ColorFilter(name='khaki'),
+            ColorFilter(name='beige'),
+            ColorFilter(name='red'),
+            ColorFilter(name='orange'),
+            ColorFilter(name='pink'),
+            ColorFilter(name='yellow'),
+            ColorFilter(name='white'),
+        ])
+
+        TypeFilter.objects.bulk_create([
+            TypeFilter(name='뮬'),
+            TypeFilter(name='샌들&뮬'),
+            TypeFilter(name='스니커즈')
+        ])
+
+        GenderSegmentation.objects.bulk_create([
+            GenderSegmentation(name='여성'),
+            GenderSegmentation(name='남성'),
+            GenderSegmentation(name='남녀공용')
+        ])
+
+    def tearDown(self):
+        Size.objects.all().delete()
+        ColorFilter.objects.all().delete()
+        TypeFilter.objects.all().delete()
+        GenderSegmentation.objects.all().delete()
+
+    def test_categoryfilter_success(self):
+        client = Client()
+        response = client.get('/product/category')
+        self.assertEqual(response.status_code, 200),
+        self.assertEqual(response.json(), {
+            "filters": {
+                "gender_filters": [
+                    "여성",
+                    "남성",
+                    "남녀공용"
+                ],
+                "color_filters": [
+                    "black",
+                    "blue",
+                    "green",
+                    "indigo",
+                    "purple",
+                    "brown",
+                    "gray",
+                    "khaki",
+                    "beige",
+                    "red",
+                    "orange",
+                    "pink",
+                    "yellow",
+                    "white"
+                ],
+                "type_filters": [
+                    "뮬",
+                    "샌들&뮬",
+                    "스니커즈"
+                ],
+                "size_filters": [
+                    220,
+                    225,
+                    230,
+                    235,
+                    240,
+                    245,
+                    250,
+                    255,
+                    260,
+                    265,
+                    270,
+                    275,
+                    280,
+                    285,
+                    290,
+                    295,
+                    300
+                ]
+            }
+        })
+

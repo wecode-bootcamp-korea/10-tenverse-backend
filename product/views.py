@@ -28,7 +28,7 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
-        shoes = ShoeColor.objects.filter(subimage__is_hover = 'True').annotate(
+        shoes = ShoeColor.objects.filter(subimage__is_hover = True).annotate(
             name       = F('shoe__detail__name'),
             price      = F('shoe__price'),
             main_image = F('image__image'),
@@ -36,15 +36,14 @@ class ShoesView(View):
         ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')
         
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
-         
         for i in range(0,len(shoe_list)):
-            shoe_list[i]['color_list'] = list(
-                Color.objects.filter(
-                    shoecolor__shoe__id = shoe_list[i]['product_detail']['shoe__id']
-                ).annotate(
+            shoe_list[i]['color_list'] = list(Color.objects.filter(**{
+                'shoecolor__shoe__id'           : shoe_list[i]['product_detail']['shoe__id'],
+                'shoecolor__subimage__is_hover' : True
+            }).annotate(
                     shoe_id      = F('shoecolor__id'),
-                    color_filter = F('color_category__name')
-                ).values('shoe_id', 'color_filter')
-            )
-        
+                    color_filter = F('color_category__name'),
+                    main_image   = F('shoecolor__image__image'),
+                    sub_image    = F('shoecolor__subimage__image')
+                ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
         return JsonResponse({'products' : shoe_list}, status=200)

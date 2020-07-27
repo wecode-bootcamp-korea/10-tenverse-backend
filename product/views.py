@@ -28,14 +28,19 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
+        page = request.GET.get('page', None)
+        
         shoes = ShoeColor.objects.filter(subimage__is_hovered = True).annotate(
             name       = F('shoe__detail__name'),
             price      = F('shoe__price'),
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
-        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')
-        
+        ).values(
+            'id','shoe__id', 'name', 'price', 'main_image', 'sub_image'
+        )[int(page)*20 : ((int(page)+1)*20)-1]
+
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
+        
         for i in range(0,len(shoe_list)):
             shoe_list[i]['color_list'] = list(Color.objects.filter(**{
                 'shoecolor__shoe__id'           : shoe_list[i]['product_detail']['shoe__id'],
@@ -45,7 +50,8 @@ class ShoesView(View):
                     color_filter = F('color_category__name'),
                     main_image   = F('shoecolor__image__image'),
                     sub_image    = F('shoecolor__subimage__image')
-                ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
+            ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
+        
         return JsonResponse({'products' : shoe_list}, status=200)
 
 class ShoeCategoryView(View):
@@ -61,21 +67,23 @@ class ShoeCategoryView(View):
             'subimage__is_hovered' : True,
             'shoe__shoe_category__name' : category_name
         }).annotate(
-            name = F('shoe__detail__name'),
-            price = F('shoe__price'),
+            name       = F('shoe__detail__name'),
+            price      = F('shoe__price'),
             main_image = F('image__image'),
-            sub_image = F('subimage__image')
+            sub_image  = F('subimage__image')
         ).values('id', 'shoe__id', 'name', 'price', 'main_image', 'sub_image')
 
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
+        
         for i in range(0, len(shoe_list)):
             shoe_list[i]['color_list'] = list(Color.objects.filter(**{
-                'shoecolor__shoe__id' : shoe_list[i]['product_detail']['shoe__id'],
+                'shoecolor__shoe__id'             : shoe_list[i]['product_detail']['shoe__id'],
                 'shoecolor__subimage__is_hovered' : True
             }).annotate(
-                shoe_id = F('shoecolor__id'),
+                shoe_id      = F('shoecolor__id'),
                 color_filter = F('color_category__name'),
-                main_image = F('shoecolor__image__image'),
-                sub_image = F('shoecolor__subimage__image')
+                main_image   = F('shoecolor__image__image'),
+                sub_image    = F('shoecolor__subimage__image')
             ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
-            return JsonResponse({'filters' : filters, 'products' : shoe_list}, status=200)
+        
+        return JsonResponse({'filters' : filters, 'products' : shoe_list}, status=200)

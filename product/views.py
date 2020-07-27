@@ -35,14 +35,16 @@ class ShoesView(View):
             sub_image  = F('subimage__image')
         ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')
         
-        shoe_list = [[shoe] for shoe in shoes]
-        
-        for i in range(len(shoe_list)):
-            shoe_list[i].append({
-                'color_list' : list(Color.objects.filter(shoecolor__shoe__id = shoe_list[i][0]['shoe__id']).annotate(
+        shoe_list = [{'product_detail' : shoe} for shoe in shoes]
+         
+        for i in range(0,len(shoe_list)):
+            shoe_list[i]['color_list'] = list(
+                Color.objects.filter(
+                    shoecolor__shoe__id = shoe_list[i]['product_detail']['shoe__id']
+                ).annotate(
                     shoe_id      = F('shoecolor__id'),
                     color_filter = F('color_category__name')
-                ).values('shoe_id', 'color_filter'))
-            })
+                ).values('shoe_id', 'color_filter')
+            )
         
         return JsonResponse({'products' : shoe_list}, status=200)

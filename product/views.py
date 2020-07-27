@@ -37,7 +37,7 @@ class ShoesView(View):
             sub_image  = F('subimage__image')
         ).values(
             'id','shoe__id', 'name', 'price', 'main_image', 'sub_image'
-        )[int(page)*20 : ((int(page)+1)*20)-1]
+        )[:((int(page)+1)*20)-1]
 
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
         
@@ -56,6 +56,8 @@ class ShoesView(View):
 
 class ShoeCategoryView(View):
     def get(self, request, category_name):
+        page = request.GET.get('page', None)
+
         filters = {
             'genders' : [gender['name'] for gender in GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
             'colors'  : [color['name'] for color in ColorFilter.objects.filter(color__shoe__shoe_category__name = category_name).values('name').distinct()],
@@ -71,7 +73,7 @@ class ShoeCategoryView(View):
             price      = F('shoe__price'),
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
-        ).values('id', 'shoe__id', 'name', 'price', 'main_image', 'sub_image')
+        ).values('id', 'shoe__id', 'name', 'price', 'main_image', 'sub_image')[:((int(page)+1)*20)-1]
 
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
         

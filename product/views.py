@@ -28,7 +28,7 @@ class CategoryView(View):
 
 class ShoesView(View):
     def get(self, request):
-        shoes = ShoeColor.objects.filter(subimage__is_hover = True).annotate(
+        shoes = ShoeColor.objects.filter(subimage__is_hovered = True).annotate(
             name       = F('shoe__detail__name'),
             price      = F('shoe__price'),
             main_image = F('image__image'),
@@ -39,7 +39,7 @@ class ShoesView(View):
         for i in range(0,len(shoe_list)):
             shoe_list[i]['color_list'] = list(Color.objects.filter(**{
                 'shoecolor__shoe__id'           : shoe_list[i]['product_detail']['shoe__id'],
-                'shoecolor__subimage__is_hover' : True
+                'shoecolor__subimage__is_hovered' : True
             }).annotate(
                     shoe_id      = F('shoecolor__id'),
                     color_filter = F('color_category__name'),

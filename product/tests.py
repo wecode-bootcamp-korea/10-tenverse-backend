@@ -206,12 +206,12 @@ class MainViewTest(TestCase):
             SubImage(
                 shoe_color = ShoeColor.objects.get(id = 1),
                 image      = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse=",
-                is_hover   = True
+                is_hovered = True
             ),
             SubImage(
                 shoe_color  = ShoeColor.objects.get(id=2),
                 image       = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse=",
-                is_hover    = True
+                is_hovered  = True
             )
         ])
 

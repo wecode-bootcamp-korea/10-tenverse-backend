@@ -76,12 +76,12 @@ class MainViewTest(TestCase):
             SubImage(
                 shoe_color = ShoeColor.objects.get(id = 1),
                 image      = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse=",
-                is_hover   = True
+                is_hovered = True
             ),
             SubImage(
                 shoe_color  = ShoeColor.objects.get(id=2),
                 image       = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse=",
-                is_hover    = True
+                is_hovered  = True
             )
         ])
 
@@ -102,7 +102,7 @@ class MainViewTest(TestCase):
     def test_mainview_success(self):
         
         client = Client()
-        response = client.get('/product')
+        response = client.get('/product?page=0')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             "products" : [
@@ -268,4 +268,138 @@ class CategoryViewTest(TestCase):
                 ]
             }
         })
+
+class ShoeCategoryViewTest(TestCase):
+    maxDiff = None
+    
+    def setUp(self):
+        MainCategory.objects.create(name='신발')
+        ShoeCategory.objects.create(name='onestar', main_category = MainCategory.objects.get(name='신발'))
+        Size.objects.create(name='220')
+        ColorFilter.objects.bulk_create([
+            ColorFilter(name='green'),
+            ColorFilter(name='indigo')
+        ])
+        TypeFilter.objects.create(name='스니커즈')
+        GenderSegmentation.objects.create(name='남녀공용')
+        Detail.objects.create(
+            name = '원스타 프로 피그 스킨',
+            main_detail = '원스타 프로 피그 스킨',
+            sub_detail = '원스타 프로 피그 스킨',
+            feature = '원스타 프로 피그 스킨',
+            feature_image = 'image'
+        )
+        Shoe.objects.create(
+            id = 1,
+            main_category = MainCategory.objects.get(name='신발'),
+            shoe_category = ShoeCategory.objects.get(name='onestar'),
+            type_filter = TypeFilter.objects.get(name='스니커즈'),
+            detail = Detail.objects.get(name='원스타 프로 피그 스킨'),
+            gender_segmentation = GenderSegmentation.objects.get(name='남녀공용'),
+            price = 99000
+        )
+        ShoeSize.objects.create(shoe=Shoe.objects.get(id=1), size=Size.objects.get(name='220'))
+        Color.objects.bulk_create([
+            Color(color_category = ColorFilter.objects.get(name='green'), name = 'green'),
+            Color(color_category = ColorFilter.objects.get(name='indigo'), name = 'indigo')
+        ])
+        MainImage.objects.bulk_create([
+            MainImage(id=1, image = "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_pdp-primary.jpg?gallery="),
+            MainImage(id=2, image = "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_pdp-primary.jpg?gallery=")
+        ])
+        ShoeColor.objects.bulk_create([
+            ShoeColor(id = 1, shoe = Shoe.objects.get(id=1), color = Color.objects.get(name='green'), image = MainImage.objects.get(id=1)),
+            ShoeColor(id = 2, shoe = Shoe.objects.get(id=1), color = Color.objects.get(name='indigo'), image = MainImage.objects.get(id=2))
+        ])
+        SubImage.objects.bulk_create([
+            SubImage(shoe_color = ShoeColor.objects.get(id=1), image = "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_03.jpg?browse=", is_hovered = True),
+            SubImage(shoe_color = ShoeColor.objects.get(id=2), image = "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_03.jpg?browse=", is_hovered = True)
+        ])
+
+    def tearDown(self):
+        MainCategory.objects.all().delete()
+        ShoeCategory.objects.all().delete()
+        Size.objects.all().delete()
+        ColorFilter.objects.all().delete()
+        TypeFilter.objects.all().delete()
+        GenderSegmentation.objects.all().delete()
+        Detail.objects.all().delete()
+        Shoe.objects.all().delete()
+        ShoeSize.objects.all().delete()
+        Color.objects.all().delete()
+        MainImage.objects.all().delete()
+        ShoeColor.objects.all().delete()
+        SubImage.objects.all().delete()
+
+    def test_shoecategoryview_success(self):
+        client = Client()
+        response = client.get('/product/onestar?page=0')
+        self.assertEqual(response.status_code, 200),
+        self.assertEqual(response.json(),{
+    "filters": {
+        "genders": [
+            "남녀공용"
+        ],
+        "colors": [
+            "green",
+            "indigo"
+        ],
+        "types": [
+            "스니커즈"
+        ],
+        "sizes": [
+            220
+        ]
+    },
+    "products": [
+        {
+            "product_detail": {
+                "id": 1,
+                "shoe__id": 1,
+                "name": "원스타 프로 피그 스킨",
+                "price": 99000,
+                "main_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_pdp-primary.jpg?gallery=",
+                "sub_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_03.jpg?browse="
+            },
+            "color_list": [
+                {
+                    "shoe_id": 1,
+                    "color_filter": "green",
+                    "main_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_pdp-primary.jpg?gallery=",
+                    "sub_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_03.jpg?browse="
+                },
+                {
+                    "shoe_id": 2,
+                    "color_filter": "indigo",
+                    "main_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_pdp-primary.jpg?gallery=",
+                    "sub_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_03.jpg?browse="
+                }
+            ]
+        },
+        {
+            "product_detail": {
+                "id": 2,
+                "shoe__id": 1,
+                "name": "원스타 프로 피그 스킨",
+                "price": 99000,
+                "main_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_pdp-primary.jpg?gallery=",
+                "sub_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_03.jpg?browse="
+            },
+            "color_list": [
+                {
+                    "shoe_id": 1,
+                    "color_filter": "green",
+                    "main_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_pdp-primary.jpg?gallery=",
+                    "sub_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_03.jpg?browse="
+                },
+                {
+                    "shoe_id": 2,
+                    "color_filter": "indigo",
+                    "main_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_pdp-primary.jpg?gallery=",
+                    "sub_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_03.jpg?browse="
+                }
+            ]
+        }
+    ]})
+
 

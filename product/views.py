@@ -47,3 +47,35 @@ class ShoesView(View):
                     sub_image    = F('shoecolor__subimage__image')
                 ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
         return JsonResponse({'products' : shoe_list}, status=200)
+
+class ShoeCategoryView(View):
+    def get(self, request, category_name):
+        filters = {
+            'genders' : [gender['name'] for gender in GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
+            'colors'  : [color['name'] for color in ColorFilter.objects.filter(color__shoe__shoe_category__name = category_name).values('name').distinct()],
+            'types'   : [type_filter['name'] for type_filter in TypeFilter.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
+            'sizes'   : [size['name'] for size in Size.objects.filter(shoesize__shoe__shoe_category__name = category_name).values('name').distinct()]
+        }
+        
+        shoes = ShoeColor.objects.filter(**{
+            'subimage__is_hovered' : True,
+            'shoe__shoe_category__name' : category_name
+        }).annotate(
+            name = F('shoe__detail__name'),
+            price = F('shoe__price'),
+            main_image = F('image__image'),
+            sub_image = F('subimage__image')
+        ).values('id', 'shoe__id', 'name', 'price', 'main_image', 'sub_image')
+
+        shoe_list = [{'product_detail' : shoe} for shoe in shoes]
+        for i in range(0, len(shoe_list)):
+            shoe_list[i]['color_list'] = list(Color.objects.filter(**{
+                'shoecolor__shoe__id' : shoe_list[i]['product_detail']['shoe__id'],
+                'shoecolor__subimage__is_hovered' : True
+            }).annotate(
+                shoe_id = F('shoecolor__id'),
+                color_filter = F('color_category__name'),
+                main_image = F('shoecolor__image__image'),
+                sub_image = F('shoecolor__subimage__image')
+            ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
+            return JsonResponse({'filters' : filters, 'products' : shoe_list}, status=200)

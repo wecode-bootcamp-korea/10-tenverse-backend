@@ -35,11 +35,11 @@ class MainPageView(View):
             sub_image  = F('subimage__image')
         ).values('id','name','price','main_image','sub_image')
         
-        shoes['page_one'] = list(shoe.filter(shoe__detail__name__contains = '척테일러'))
+        shoes['womens_collection'] = list(shoe.filter(shoe__detail__name__contains = '척테일러'))
         
-        shoes['page_two'] = list(shoe.filter(color__name = '노마드카키'))
+        shoes['jack_purcell'] = list(shoe.filter(color__name = '노마드카키'))
         
-        shoes['page_three'] = list(shoe.filter(**{
+        shoes['pro_leather'] = list(shoe.filter(**{
             'shoe__detail__name__contains' : '잭퍼셀',
             'color__name'                  : '화이트'
         }))

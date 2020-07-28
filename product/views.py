@@ -12,7 +12,7 @@ from .models import (
     TypeFilter,
     GenderSegmentation,
     Detail,
-    ShoeSize,
+    ShoeColorSize,
     ShoeColor,
     SubImage
 )

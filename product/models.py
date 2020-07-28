@@ -82,9 +82,9 @@ class ShoeColor(models.Model):
         db_table = 'shoes_colors'
 
 class ShoeColorSize(models.Model):
-    shoe     = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
-    size     = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
-    quantity = models.IntegerField()
+    shoecolor = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
+    size      = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
+    quantity  = models.IntegerField()
     
     class Meta:
         db_table = 'shoecolor_sizes'

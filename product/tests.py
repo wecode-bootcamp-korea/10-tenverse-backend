@@ -169,7 +169,7 @@ class MainViewTest(TestCase):
             ColorFilter(id=1,name = 'khaki'),
             ColorFilter(id=2,name = 'black')
         ])
-
+        Size.objects.create(id=1, name=220)
         Color.objects.bulk_create([
             Color(id = 1,color_category = ColorFilter.objects.get(name='khaki'), name = '노마드카키'),
             Color(id = 2,color_category = ColorFilter.objects.get(name='black'), name = '블랙')
@@ -206,7 +206,10 @@ class MainViewTest(TestCase):
                 image   = MainImage.objects.get(id = 2)
             )
         ])
-
+        ShoeColorSize.objects.bulk_create([
+            ShoeColorSize(id=1, shoecolor = ShoeColor.objects.get(id=1), size=Size.objects.get(id=1), quantity=1),
+            ShoeColorSize(id=2, shoecolor = ShoeColor.objects.get(id=2), size=Size.objects.get(id=1), quantity=1)
+        ])
         SubImage.objects.bulk_create([
             SubImage(
                 shoe_color = ShoeColor.objects.get(id = 1),
@@ -240,6 +243,21 @@ class MainViewTest(TestCase):
         response = client.get('/product')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
+            "filters" : {
+                "gender_filters": [
+                    "남녀공용"
+                ],
+                "color_filters": [
+                    "khaki",
+                    "black"
+                ],
+                "type_filters": [
+                    "스니커즈"
+                ],
+                "size_filters": [
+                    220
+                ]
+            },
             "products" : [
                 {
                     "product_detail" : {
@@ -291,119 +309,6 @@ class MainViewTest(TestCase):
                 }
                 ]})
 
-class CategoryViewTest(TestCase):
-    maxDiff = None 
-
-    def setUp(self):
-        Size.objects.bulk_create([
-            Size(name=220),
-            Size(name=225),
-            Size(name=230),
-            Size(name=235),
-            Size(name=240),
-            Size(name=245),
-            Size(name=250),
-            Size(name=255),
-            Size(name=260),
-            Size(name=265),
-            Size(name=270),
-            Size(name=275),
-            Size(name=280),
-            Size(name=285),
-            Size(name=290),
-            Size(name=295),
-            Size(name=300)
-        ])
-        
-        ColorFilter.objects.bulk_create([
-            ColorFilter(name='black'),
-            ColorFilter(name='blue'),
-            ColorFilter(name='green'),
-            ColorFilter(name='indigo'),
-            ColorFilter(name='purple'),
-            ColorFilter(name='brown'),
-            ColorFilter(name='gray'),
-            ColorFilter(name='khaki'),
-            ColorFilter(name='beige'),
-            ColorFilter(name='red'),
-            ColorFilter(name='orange'),
-            ColorFilter(name='pink'),
-            ColorFilter(name='yellow'),
-            ColorFilter(name='white'),
-        ])
-
-        TypeFilter.objects.bulk_create([
-            TypeFilter(name='뮬'),
-            TypeFilter(name='샌들&뮬'),
-            TypeFilter(name='스니커즈')
-        ])
-
-        GenderSegmentation.objects.bulk_create([
-            GenderSegmentation(name='여성'),
-            GenderSegmentation(name='남성'),
-            GenderSegmentation(name='남녀공용')
-        ])
-
-    def tearDown(self):
-        Size.objects.all().delete()
-        ColorFilter.objects.all().delete()
-        TypeFilter.objects.all().delete()
-        GenderSegmentation.objects.all().delete()
-
-    def test_categoryfilter_success(self):
-        client = Client()
-        response = client.get('/product/category')
-        self.assertEqual(response.status_code, 200),
-        self.assertEqual(response.json(), {
-            "filters": {
-                "gender_filters": [
-                    "여성",
-                    "남성",
-                    "남녀공용"
-                ],
-                "color_filters": [
-                    "black",
-                    "blue",
-                    "green",
-                    "indigo",
-                    "purple",
-                    "brown",
-                    "gray",
-                    "khaki",
-                    "beige",
-                    "red",
-                    "orange",
-                    "pink",
-                    "yellow",
-                    "white"
-                ],
-                "type_filters": [
-                    "뮬",
-                    "샌들&뮬",
-                    "스니커즈"
-                ],
-                "size_filters": [
-                    220,
-                    225,
-                    230,
-                    235,
-                    240,
-                    245,
-                    250,
-                    255,
-                    260,
-                    265,
-                    270,
-                    275,
-                    280,
-                    285,
-                    290,
-                    295,
-                    300
-                ]
-            }
-        })
-
 class FilterView(TestCase):
     maxDiff = None
 
@@ -434,7 +339,7 @@ class FilterView(TestCase):
         MainImage.objects.create(id=1, image="https://image.converse.co.kr/cmsstatic/product/567872C_567872C_pdp-primary.jpg?gallery=")
         Color.objects.create(id=1, color_category=ColorFilter.objects.get(id=1), name='indigo')
         ShoeColor.objects.create(id=1, shoe = Shoe.objects.get(id=1), color = Color.objects.get(id=1), image = MainImage.objects.get(id=1))
-        ShoeColorSize.objects.create(shoe=ShoeColor.objects.get(id=1), size = Size.objects.get(id=1), quantity = 1)
+        ShoeColorSize.objects.create(shoecolor=ShoeColor.objects.get(id=1), size = Size.objects.get(id=1), quantity = 1)
         SubImage.objects.create(id=1, shoe_color = ShoeColor.objects.get(id=1), image = "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_3.jpg?browse=", is_hovered = True)
 
     def tearDown(self):
@@ -460,13 +365,13 @@ class FilterView(TestCase):
                 "gender_filters": [
                     "여성"
                 ],
-                "colors": [
+                "color_filters": [
                     "indigo"
                 ],
-                "types": [
+                "type_filters": [
                     "스니커즈"
                 ],
-                "sizes": [
+                "size_filters": [
                     220
                 ]
             },

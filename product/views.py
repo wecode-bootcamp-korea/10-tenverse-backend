@@ -12,7 +12,7 @@ from .models import (
     TypeFilter,
     GenderSegmentation,
     Detail,
-    ShoeSize,
+    ShoeColorSize,
     ShoeColor,
     SubImage
 )
@@ -62,7 +62,7 @@ class ShoeCategoryView(View):
             'genders' : [gender['name'] for gender in GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
             'colors'  : [color['name'] for color in ColorFilter.objects.filter(color__shoe__shoe_category__name = category_name).values('name').distinct()],
             'types'   : [type_filter['name'] for type_filter in TypeFilter.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
-            'sizes'   : [size['name'] for size in Size.objects.filter(shoesize__shoe__shoe_category__name = category_name).values('name').distinct()]
+            'sizes'   : [size['name'] for size in Size.objects.filter(shoecolorsize__shoe__shoe__shoe_category__name = category_name).values('name').distinct()]
         }
         
         shoes = ShoeColor.objects.filter(**{

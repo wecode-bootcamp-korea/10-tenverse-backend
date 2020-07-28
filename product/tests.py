@@ -13,7 +13,7 @@ from .models import(
     GenderSegmentation,
     Detail,
     Shoe,
-    ShoeSize,
+    ShoeColorSize,
     MainImage,
     ShoeColor,
     SubImage
@@ -298,7 +298,6 @@ class ShoeCategoryViewTest(TestCase):
             gender_segmentation = GenderSegmentation.objects.get(name='남녀공용'),
             price = 99000
         )
-        ShoeSize.objects.create(shoe=Shoe.objects.get(id=1), size=Size.objects.get(name='220'))
         Color.objects.bulk_create([
             Color(color_category = ColorFilter.objects.get(name='green'), name = 'green'),
             Color(color_category = ColorFilter.objects.get(name='indigo'), name = 'indigo')
@@ -310,6 +309,10 @@ class ShoeCategoryViewTest(TestCase):
         ShoeColor.objects.bulk_create([
             ShoeColor(id = 1, shoe = Shoe.objects.get(id=1), color = Color.objects.get(name='green'), image = MainImage.objects.get(id=1)),
             ShoeColor(id = 2, shoe = Shoe.objects.get(id=1), color = Color.objects.get(name='indigo'), image = MainImage.objects.get(id=2))
+        ])
+        ShoeColorSize.objects.bulk_create([
+            ShoeColorSize(shoe=ShoeColor.objects.get(id=1), size=Size.objects.get(name='220'), quantity = 1),
+            ShoeColorSize(shoe=ShoeColor.objects.get(id=2), size=Size.objects.get(name='220'), quantity = 1)
         ])
         SubImage.objects.bulk_create([
             SubImage(shoe_color = ShoeColor.objects.get(id=1), image = "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_03.jpg?browse=", is_hovered = True),
@@ -325,7 +328,7 @@ class ShoeCategoryViewTest(TestCase):
         GenderSegmentation.objects.all().delete()
         Detail.objects.all().delete()
         Shoe.objects.all().delete()
-        ShoeSize.objects.all().delete()
+        ShoeColorSize.objects.all().delete()
         Color.objects.all().delete()
         MainImage.objects.all().delete()
         ShoeColor.objects.all().delete()

@@ -88,7 +88,7 @@ class ShoeColorSize(models.Model):
     quantity  = models.IntegerField()
 
     class Meta:
-        db_table = 'shoes_sizes'
+        db_table = 'shoecolor_sizes'
 
 class SubImage(models.Model):
     shoe_color  = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)

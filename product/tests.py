@@ -108,7 +108,7 @@ class DetailViewTest(TestCase):
                     {
                         "id": 1,
                         "name": "척 70 시그니처",
-                        "price": 95000,
+                        "price": "95000.00",
                         "gender": "남녀공용",
                         "color_name": "블랙",
                         "main_detail": "척 테일러의 서명으로 완성된 컨버스 대표 아이콘",
@@ -264,7 +264,7 @@ class MainViewTest(TestCase):
                         "id"         : 1,
                         "shoe__id"   : 1,
                         "name"       : "척 70 핵트 패션",
-                        "price"      : 99000,
+                        "price"      : "99000.00",
                         "main_image" : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
                         "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
                     },
@@ -288,7 +288,7 @@ class MainViewTest(TestCase):
                         "id"         : 2,
                         "shoe__id"   : 1,
                         "name"       : "척 70 핵트 패션",
-                        "price"      : 99000,
+                        "price"      : "99000.00",
                         "main_image" : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=",
                         "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse="
                     },
@@ -381,7 +381,7 @@ class FilterView(TestCase):
                         "id": 1,
                         "shoe__id": 1,
                         "name": "척테일러 올스타 데인티 데님 데이즈",
-                        "price": 55000,
+                        "price": "55000.00",
                         "main_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_pdp-primary.jpg?gallery=",
                         "sub_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_3.jpg?browse="
                     },

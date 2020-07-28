@@ -19,7 +19,8 @@ from .models import (
 
 class ShoesView(View):
     def get(self, request):
-        page = request.GET.get('page', 0)
+        page = int(request.GET.get('page', 0))
+        limit = int(request.GET.get('limit', 20))
         filters = {
             'gender_filters'    : [gender.name for gender in GenderSegmentation.objects.all()],
             'color_filters'     : [color.name for color in ColorFilter.objects.all()],
@@ -32,7 +33,7 @@ class ShoesView(View):
             price      = F('shoe__price'),
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
-        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[int(page)*20:((int(page)+1)*20)-1]
+        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[page*limit:((page+1)*limit)-1]
         
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
         for i in range(0,len(shoe_list)):
@@ -94,7 +95,8 @@ class DetailView(View):
 
 class FilterView(View):
     def get(self, request):
-        page = request.GET.get('page', 0)
+        page = int(request.GET.get('page', 0))
+        limit = int(request.GET.get('limit', 20))
         colorfilter  = request.GET.getlist('color', [color['name'] for color in ColorFilter.objects.all().values('name')])
         typefilter   = request.GET.getlist('type', [type_filter['name'] for type_filter in TypeFilter.objects.all().values('name')])
         genderfilter = request.GET.getlist('gender', [gender['name'] for gender in GenderSegmentation.objects.all().values('name')])
@@ -113,7 +115,7 @@ class FilterView(View):
             price      = F('shoe__price'),
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
-        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[int(page)*20:((int(page)+1)*20)-1])
+        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[page*limit:((page+1)*limit)-1])
         
         filters = {
             'gender_filters'    : [gender['shoe__gender_segmentation__name'] for gender in list(shoes.values('shoe__gender_segmentation__name').distinct())],

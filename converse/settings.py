@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'user',
     'product',
+    'instagram',
 ]
 
 MIDDLEWARE = [

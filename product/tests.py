@@ -241,32 +241,32 @@ class MainPageViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),{
     "products": {
-        "womens_collection": [
+        "women_collection": [
             {
                 "id": 1,
                 "name": "척테일러 올스타 리프트 EVA",
-                "price": 109000,
+                "price": "109000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/565829C_565829C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/565829C_565829C_03.jpg?browse="
             },
             {
                 "id": 2,
                 "name": "척테일러 올스타 리프트 캔버스",
-                "price": 75000,
+                "price": "75000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/21553/560251C_560251C_primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/560251C_560251C_03.jpg?browse="
             },
             {
                 "id": 3,
                 "name": "척테일러 올스타 리프트 캔버스",
-                "price": 75000,
+                "price": "75000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/560250C_560250C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/560250C_560250C_03.jpg?browse="
             },
             {
                 "id": 4,
                 "name": "척테일러 올스타 리프트 캔버스",
-                "price": 79000,
+                "price": "79000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/27379/560846C_560846C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/27379/560846C_560846C_03.jpg?browse="
             }
@@ -275,14 +275,14 @@ class MainPageViewTest(TestCase):
             {
                 "id": 5,
                 "name": "잭퍼셀 컬러블록",
-                "price": 89000,
+                "price": "89000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168976C_168976C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/168976C_168976C_03.jpg?browse="
             },
             {
                 "id": 6,
                 "name": "척 70 핵트 패션",
-                "price": 99000,
+                "price": "99000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
             }
@@ -291,14 +291,14 @@ class MainPageViewTest(TestCase):
             {
                 "id": 7,
                 "name": "잭퍼셀 트레일 투 코브",
-                "price": 85000,
+                "price": "85000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168140C_168140C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/168140C_168140C_03.jpg?browse="
             },
             {
                 "id": 8,
                 "name": "잭퍼셀 샤이니 레더",
-                "price": 95000,
+                "price": "95000.00",
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168135C_168135C_pdp-primary.jpg?gallery=",
                 "sub_image": "https://image.converse.co.kr/cmsstatic/product/168135C_168135C_03.jpg?browse="
             }
@@ -502,6 +502,7 @@ class MainViewTest(TestCase):
             
             client = Client()
             response = client.get('/product')
+            products = list(ShoeColor.objects.all().values('shoe__price'))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json(), {
                 "products" : [
@@ -510,7 +511,7 @@ class MainViewTest(TestCase):
                             "id"         : 1,
                             "shoe__id"   : 1,
                             "name"       : "척 70 핵트 패션",
-                            "price"      : 99000,
+                            "price"      : "99000.00",
                             "main_image" : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
                             "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
                         },
@@ -533,7 +534,7 @@ class MainViewTest(TestCase):
                             "id"         : 2,
                             "shoe__id"   : 1,
                             "name"       : "척 70 핵트 패션",
-                            "price"      : 99000,
+                            "price"      : "99000.00",
                             "main_image" : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=",
                             "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse="
                         },

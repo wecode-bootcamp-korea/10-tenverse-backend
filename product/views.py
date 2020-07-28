@@ -39,10 +39,10 @@ class MainPageView(View):
             price      = F('shoe__price'),
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
-        ).values('id','name','price','main_image','sub_image')
+        ).values('id','name', 'price','main_image','sub_image')
         
         shoes = {
-            'womens_collection' : list(shoe.filter(shoe__detail__name__contains = '척테일러')),
+            'women_collection' : list(shoe.filter(shoe__detail__name__contains = '척테일러')),
             'jack_purcell'      : list(shoe.filter(color__name = '노마드카키')),
             'pro_leather'       : list(shoe.filter(**{
                 'shoe__detail__name__contains' : '잭퍼셀',
@@ -63,9 +63,9 @@ class ShoesView(View):
         
         shoe_list = [{'product_detail' : shoe} for shoe in shoes]
         
-        for i in range(0,len(shoe_list)):
-            shoe_list[i]['color_list'] = list(Color.objects.filter(**{
-                'shoecolor__shoe__id'               : shoe_list[i]['product_detail']['shoe__id'],
+        for shoe in shoe_list:
+            shoe['color_list'] = list(Color.objects.filter(**{
+                'shoecolor__shoe__id'               : shoe['product_detail']['shoe__id'],
                 'shoecolor__subimage__is_hovered'   : True
             }).annotate(
                     shoe_id      = F('shoecolor__id'),

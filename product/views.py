@@ -106,7 +106,7 @@ class DetailView(View):
                 'id'         : shoe_detail[0]['id'],
                 'main_image' : shoe_detail[0]['main_image']
             })
- 
+
             size_list = [size['shoecolorsize__size__name'] for size in product.values('shoecolorsize__size__name')]
             shoe_detail.append({
                 'sub_image'  : sub_image,
@@ -142,7 +142,7 @@ class FilterView(View):
             main_image = F('image__image'),
             sub_image  = F('subimage__image')
         ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[page*limit:((page+1)*limit)-1])
-        
+
         filters = {
             'gender_filters'    : [gender['shoe__gender_segmentation__name'] for gender in list(shoes.values('shoe__gender_segmentation__name').distinct())],
             'color_filters'     : [color['color__color_category__name'] for color in list(shoes.values('color__color_category__name').distinct())],

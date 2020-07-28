@@ -61,18 +61,10 @@ class Shoe(models.Model):
     detail              = models.ForeignKey(Detail, on_delete = models.SET_NULL, null = True)
     gender_segmentation = models.ForeignKey(GenderSegmentation, on_delete = models.SET_NULL, null = True)
     price               = models.IntegerField()
-    size                = models.ManyToManyField(Size, through = 'ShoeSize')
     color               = models.ManyToManyField(Color, through = 'ShoeColor')
 
     class Meta:
         db_table = 'shoes'
-
-class ShoeSize(models.Model):
-    shoe = models.ForeignKey(Shoe, on_delete=models.SET_NULL, null=True)
-    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True)
-
-    class Meta:
-        db_table = 'shoes_sizes'
 
 class MainImage(models.Model):
     image = models.CharField(max_length=300)
@@ -84,9 +76,18 @@ class ShoeColor(models.Model):
     shoe  = models.ForeignKey(Shoe, on_delete = models.SET_NULL, null = True)
     color = models.ForeignKey(Color, on_delete = models.SET_NULL, null = True)
     image = models.OneToOneField(MainImage, on_delete = models.SET_NULL, null = True)
+    size  = models.ManyToManyField(Size, through = 'ShoeColorSize')    
     
     class Meta:
         db_table = 'shoes_colors'
+
+class ShoeColorSize(models.Model):
+    shoecolor = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
+    size      = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
+    quantity  = models.IntegerField()
+
+    class Meta:
+        db_table = 'shoecolor_sizes'
 
 class SubImage(models.Model):
     shoe_color = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)

@@ -123,10 +123,10 @@ class FilterView(View):
     def get(self, request):
         page = int(request.GET.get('page', 0))
         limit = int(request.GET.get('limit', 20))
-        colorfilter  = request.GET.getlist('color', [color['name'] for color in ColorFilter.objects.all().values('name')])
-        typefilter   = request.GET.getlist('type', [type_filter['name'] for type_filter in TypeFilter.objects.all().values('name')])
-        genderfilter = request.GET.getlist('gender', [gender['name'] for gender in GenderSegmentation.objects.all().values('name')])
-        sizefilter   = request.GET.getlist('size', [size['name'] for size in Size.objects.all().values('name')])
+        colorfilter  = request.GET.getlist('color', list(ColorFilter.objects.all().values_list('name', flat=True)))
+        typefilter   = request.GET.getlist('type', list(TypeFilter.objects.all().values_list('name', flat=True)))
+        genderfilter = request.GET.getlist('gender', list(GenderSegmentation.objects.all().values_list('name', flat=True)))
+        sizefilter   = request.GET.getlist('size', list(Size.objects.all().values_list('name', flat=True)))
         
         shoes = ShoeColor.objects.filter(**{
             'color__color_category__name__in'     : colorfilter,
@@ -144,17 +144,17 @@ class FilterView(View):
         ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[page*limit:((page+1)*limit)-1])
 
         filters = {
-            'gender_filters'    : [gender['shoe__gender_segmentation__name'] for gender in list(shoes.values('shoe__gender_segmentation__name').distinct())],
-            'color_filters'     : [color['color__color_category__name'] for color in list(shoes.values('color__color_category__name').distinct())],
-            'type_filters'      : [type_filter['shoe__type_filter__name'] for type_filter in list(shoes.values('shoe__type_filter__name').distinct())],
-            'size_filters'      : [size['shoecolorsize__size__name'] for size in list(shoes.values('shoecolorsize__size__name').distinct())]
+            'gender_filters'    : list(shoes.values_list('shoe__gender_segmentation__name',flat=True)),
+            'color_filters'     : [color.name for color in ColorFilter.objects.all()],
+            'type_filters'      : list(shoes.values_list('shoe__type_filter__name',flat=True)),
+            'size_filters'      : list(shoes.values_list('shoecolorsize__size__name',flat=True))
         }
 
         shoe_list = [{'product_detail' : shoe} for shoe in shoe_values]
         
-        for i in range(len(shoe_list)):
-            shoe_list[i]['color_list'] = list(Color.objects.filter(**{
-                'shoecolor__shoe__id'             : shoe_list[i]['product_detail']['shoe__id'],
+        for shoe in shoe_list:
+            shoe['color_list'] = list(Color.objects.filter(**{
+                'shoecolor__shoe__id'             : shoe['product_detail']['shoe__id'],
                 'shoecolor__subimage__is_hovered' : True
             }).annotate(
                 shoe_id      = F('shoecolor__id'),

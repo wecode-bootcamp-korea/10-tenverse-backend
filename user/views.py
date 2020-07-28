@@ -79,7 +79,7 @@ class SignUpView(View):
             mail_to = data['email']
             email = EmailMessage(mail_title, message_data, to=[mail_to])
             email.send()
-
+            
             return JsonResponse({'message' : 'SUCCESS'}, status = 200)
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)

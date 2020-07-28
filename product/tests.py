@@ -13,7 +13,7 @@ from .models import(
     GenderSegmentation,
     Detail,
     Shoe,
-    ShoeSize,
+    ShoeColorSize,
     MainImage,
     ShoeColor,
     SubImage
@@ -23,9 +23,10 @@ class MainViewTest(TestCase):
     maxDiff = None
 
     def setUp(self):
-        MainCategory.objects.create(name = '신발')
-        ShoeCategory.objects.create(name = '척 70', main_category = MainCategory.objects.get(id=1))
+        MainCategory.objects.create(id=1,name = '신발')
+        ShoeCategory.objects.create(id=1,name = '척 70', main_category = MainCategory.objects.get(id=1))
         Detail.objects.create(
+            id=1,
             name          = '척 70 핵트 패션',
             main_detail   = '척 70 핵트 패션',
             sub_detail    = '척 70 핵트 패션',
@@ -34,18 +35,19 @@ class MainViewTest(TestCase):
         )
 
         ColorFilter.objects.bulk_create([
-            ColorFilter(name = 'khaki'),
-            ColorFilter(name = 'black')
+            ColorFilter(id=1, name = 'khaki'),
+            ColorFilter(id=2, name = 'black')
         ])
 
         Color.objects.bulk_create([
-            Color(color_category = ColorFilter.objects.get(name='khaki'), name = '노마드카키'),
-            Color(color_category = ColorFilter.objects.get(name='black'), name = '블랙')
+            Color(id=1, color_category = ColorFilter.objects.get(name='khaki'), name = '노마드카키'),
+            Color(id=2, color_category = ColorFilter.objects.get(name='black'), name = '블랙')
         ])
-        TypeFilter.objects.create(name='스니커즈')
-        GenderSegmentation.objects.create(name='남녀공용')
+        TypeFilter.objects.create(id=1,name='스니커즈')
+        GenderSegmentation.objects.create(id=1,name='남녀공용')
 
         Shoe.objects.create(
+            id = 1,
             main_category       = MainCategory.objects.get(id = 1),
             shoe_category       = ShoeCategory.objects.get(id = 1),
             type_filter         = TypeFilter.objects.get(name='스니커즈'),
@@ -55,17 +57,19 @@ class MainViewTest(TestCase):
         )
 
         MainImage.objects.bulk_create([
-            MainImage(image = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery="),
-            MainImage(image = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=")
+            MainImage(id=1,image = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery="),
+            MainImage(id=2,image = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=")
         ])
 
         ShoeColor.objects.bulk_create([
             ShoeColor(
+                id =1,
                 shoe  = Shoe.objects.get(id = 1),
                 color = Color.objects.get(id = 1),
                 image = MainImage.objects.get(id = 1)
             ),
             ShoeColor(
+                id=2,
                 shoe  = Shoe.objects.get(id = 1),
                 color = Color.objects.get(id = 2),
                 image = MainImage.objects.get(id = 2)
@@ -74,14 +78,16 @@ class MainViewTest(TestCase):
 
         SubImage.objects.bulk_create([
             SubImage(
-                shoe_color = ShoeColor.objects.get(id = 1),
-                image      = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse=",
-                is_hover   = True
+                id=1,
+                shoe_color  = ShoeColor.objects.get(id = 1),
+                image       = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse=",
+                is_hovered  = True
             ),
             SubImage(
+                id=2,
                 shoe_color  = ShoeColor.objects.get(id=2),
                 image       = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse=",
-                is_hover    = True
+                is_hovered  = True
             )
         ])
 
@@ -111,7 +117,7 @@ class MainViewTest(TestCase):
                         "id"         : 1,
                         "shoe__id"   : 1,
                         "name"       : "척 70 핵트 패션",
-                        "price"      : 99000,
+                        "price"      : "99000.00",
                         "main_image" : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery=",
                         "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_03.jpg?browse="
                     },
@@ -135,7 +141,7 @@ class MainViewTest(TestCase):
                         "id"         : 2,
                         "shoe__id"   : 1,
                         "name"       : "척 70 핵트 패션",
-                        "price"      : 99000,
+                        "price"      : "99000.00",
                         "main_image" : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=",
                         "sub_image"  : "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_03.jpg?browse="
                     },

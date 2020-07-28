@@ -1,4 +1,5 @@
 import jwt
+import json
 
 from django.test import (
     TestCase,
@@ -37,7 +38,7 @@ class OrderViewTest(TestCase):
     def setUp(self):
         MainCategory.objects.create(id=1, name='신발')
         ShoeCategory.objects.create(id=1, main_category = MainCategory.objects.get(id=1), name='척 70')
-        Detail.objects.create(id=1, main_detail='test', sub_detail='test', feature='test', 'feature_image'='test')
+        Detail.objects.create(id=1, main_detail='test', sub_detail='test', feature='test', feature_image='test')
         Size.objects.create(id=1, name=220)
         ColorFilter.objects.create(id=1, name='black')
         Color.objects.create(id=1, color_category=ColorFilter.objects.get(id=1),name='블랙')
@@ -80,12 +81,12 @@ class OrderViewTest(TestCase):
 
     def test_orderview_success(self):
         client = Client()
-        token = {"HTTP_Authorization" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.6mlhvmw9MyBvInOVrhOnQNizB8iPI47xZ_2sC1gUcXs"}
+        header = {"HTTP_Authorization" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.6mlhvmw9MyBvInOVrhOnQNizB8iPI47xZ_2sC1gUcXs"}
         order = {
-            'product' : 1,
+            'id' : 1,
             'size' : 220,
-            'quantity' : 1
+            'quantity' : 3
         }
-        response = client.post('/order', json.dumps(order), **token)
+        response = client.post('/order', json.dumps(order),content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"message" : "SUCCESS"})

@@ -60,7 +60,7 @@ class Shoe(models.Model):
     type_filter         = models.ForeignKey(TypeFilter, on_delete   = models.SET_NULL, null = True)
     detail              = models.ForeignKey(Detail, on_delete = models.SET_NULL, null = True)
     gender_segmentation = models.ForeignKey(GenderSegmentation, on_delete = models.SET_NULL, null = True)
-    price               = models.IntegerField()
+    price               = models.DecimalField(max_digits = 8, decimal_places=2)
     color               = models.ManyToManyField(Color, through = 'ShoeColor')
 
     class Meta:

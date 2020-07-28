@@ -89,14 +89,6 @@ class ShoeColorSize(models.Model):
     class Meta:
         db_table = 'shoecolor_sizes'
 
-class ShoeColor(models.Model):
-    shoe  = models.ForeignKey(Shoe, on_delete = models.SET_NULL, null = True)
-    color = models.ForeignKey(Color, on_delete = models.SET_NULL, null = True)
-    image = models.OneToOneField(MainImage, on_delete = models.SET_NULL, null = True)
-    
-    class Meta:
-        db_table = 'shoes_colors'
-
 class SubImage(models.Model):
     shoe_color = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
     image      = models.CharField(max_length = 300)

@@ -51,6 +51,7 @@ class DetailViewTest(TestCase):
         TypeFilter.objects.create(name='스니커즈')
         GenderSegmentation.objects.create(name='남녀공용')
         Shoe.objects.create(
+            id=1,
             main_category = MainCategory.objects.get(id=1),
             shoe_category = ShoeCategory.objects.get(id=1),
             type_filter = TypeFilter.objects.get(id=1),
@@ -58,22 +59,26 @@ class DetailViewTest(TestCase):
             gender_segmentation = GenderSegmentation.objects.get(id=1),
             price = 95000
         )
-        ShoeSize.objects.bulk_create([
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=1)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=2)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=3)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=4)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=5)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=6)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=7)),
-            ShoeSize(shoe = Shoe.objects.get(id=1), size = Size.objects.get(id=8)),
-        ])
-        MainImage.objects.create(image='https://image.converse.co.kr/cmsstatic/product/167698C_167698C_pdp-primary.jpg?gallery=')
+        
         ShoeColor.objects.create(
+            id =1,
             shoe = Shoe.objects.get(id=1),
             color = Color.objects.get(id=1),
             image = MainImage.objects.get(id=1)
         )
+
+        ShoeColorSize.objects.bulk_create([
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=1)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=2)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=3)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=4)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=5)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=6)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=7)),
+            ShoeColorSize(shoe = ShoeColor.objects.get(id=1), size = Size.objects.get(id=8)),
+        ])
+        MainImage.objects.create(image='https://image.converse.co.kr/cmsstatic/product/167698C_167698C_pdp-primary.jpg?gallery=')
+        
         SubImage.objects.bulk_create([
             SubImage(shoe_color = ShoeColor.objects.get(id=1), image='https://image.converse.co.kr/cmsstatic/product/167698C_167698C_primary.jpg?gallery='),
             SubImage(shoe_color = ShoeColor.objects.get(id=1), image='https://image.converse.co.kr/cmsstatic/product/167698C_167698C_2.jpg?browse='),
@@ -93,7 +98,7 @@ class DetailViewTest(TestCase):
             GenderSegmentation.objects.all().delete()
             Detail.objects.all().delete()
             Shoe.objects.all().delete()
-            ShoeSize.objects.all().delete()
+            ShoeColorSize.objects.all().delete()
             MainImage.objects.all().delete()
             ShoeColor.objects.all().delete()
             SubImage.objects.all().delete()

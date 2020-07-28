@@ -82,7 +82,7 @@ class DetailView(View):
                 'main_image' : shoe_detail[0]['main_image']
             })
 
-            size_list = [size['shoe__size__name'] for size in product.values('shoe__size__name')]
+            size_list = [size['shoecolor__size__name'] for size in product.values('shoecolor__size__name')]
             shoe_detail.append({
                 'sub_image'  : sub_image,
                 'color_list' : color_list,

@@ -594,7 +594,7 @@ class DetailViewTest(TestCase):
             type_filter = TypeFilter.objects.get(id=1),
             detail = Detail.objects.get(id=1),
             gender_segmentation = GenderSegmentation.objects.get(id=1),
-            price = 95000
+            price = 95000.00
         )
         
         ShoeColor.objects.create(
@@ -649,7 +649,7 @@ class DetailViewTest(TestCase):
         {
             "id": 1,
             "name": "척 70 시그니처",
-            "price": 95000,
+            "price": "95000.00",
             "gender": "남녀공용",
             "color_name": "블랙",
             "main_detail": "척 테일러의 서명으로 완성된 컨버스 대표 아이콘",

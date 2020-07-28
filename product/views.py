@@ -12,7 +12,7 @@ from .models import (
     TypeFilter,
     GenderSegmentation,
     Detail,
-    ShoeSize,
+    ShoeColorSize,
     ShoeColor,
     SubImage
 )
@@ -82,7 +82,7 @@ class DetailView(View):
                 'main_image' : shoe_detail[0]['main_image']
             })
  
-            size_list = [size['shoe__size__name'] for size in product.values('shoe__size__name')]
+            size_list = [size['shoecolorsize__size__name'] for size in product.values('shoecolorsize__size__name')]
             shoe_detail.append({
                 'sub_image'  : sub_image,
                 'color_list' : color_list,
@@ -106,7 +106,7 @@ class FilterView(View):
             'color__color_category__name__in'     : colorfilter,
             'shoe__type_filter__name__in'         : typefilter,
             'shoe__gender_segmentation__name__in' : genderfilter,
-            'shoe__shoesize__size__name__in'      : sizefilter,
+            'shoecolorsize__size__name__in'       : sizefilter,
             'subimage__is_hovered'                : True
         })
         shoe_values = list(shoes.annotate(
@@ -120,7 +120,7 @@ class FilterView(View):
             'gender_filters' : [gender['shoe__gender_segmentation__name'] for gender in list(shoes.values('shoe__gender_segmentation__name').distinct())],
             'colors'         : [color['color__color_category__name'] for color in list(shoes.values('color__color_category__name').distinct())],
             'types'          : [type_filter['shoe__type_filter__name'] for type_filter in list(shoes.values('shoe__type_filter__name').distinct())],
-            'sizes'          : [size['shoe__shoesize__size__name'] for size in list(shoes.values('shoe__shoesize__size__name').distinct())]
+            'sizes'          : [size['shoecolorsize__size__name'] for size in list(shoes.values('shoecolorsize__size__name').distinct())]
         }
         shoe_list = [{'product_detail' : shoe} for shoe in shoe_values]
         for i in range(len(shoe_list)):

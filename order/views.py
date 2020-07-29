@@ -85,17 +85,33 @@ class PendingOrderView(View):
                 "id"       : order.product.id,
                 "image"    : order.product.shoecolor.image.image,
                 "name"     : order.product.shoecolor.shoe.detail.name,
-                "price"    : order.product.shoecolor.shoe.price,
+                "price"    : int(order.product.shoecolor.shoe.price),
                 "color"    : order.product.shoecolor.color.name,
                 "size"     : order.product.size.name,
                 "quantity" : order.order_quantity
             } for order in order_list
         ]
-        total_price = str(order_list.aggregate(
+        total_price = int(order_list.aggregate(
             price = Sum(
                 F('order_quantity')*F('product__shoecolor__shoe__price'),
                 output_field=IntegerField()
             ))['price'])
 
         return JsonResponse({"total_price" : total_price, "pending_orders" : pending_orders}, status=200)
+
+class UpdateOrderView(View):
+    @login_required
+    def post(self, request, user_id):
+        data = json.loads(request.body)
+        user = User.objects.get(id=user_id)
+        try:
+            product_order = list(ProductOrder.objects.filter(id=data['id']).prefetch_related("product__shoecolor"))[0]
+            with transaction.atomic():
+                product_order.product.quantity = product.shoecolor.quantity + (product_order.order_quantity - data['quantity'])
+                product_order.order_quantity = data['quantity']
+                product_order.product.quantity.save()
+                product_order.order_quantity.save()
+            return JsonResponse({'message' : 'KeyError'}, status=200)
+        except KeyError:
+            return JsonResponse({'message' : 'KeyError'}, status=400)
 

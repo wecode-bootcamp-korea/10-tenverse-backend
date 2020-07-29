@@ -98,7 +98,7 @@ class PendingOrderViewTest(TestCase):
     def setUp(self):
         MainCategory.objects.create(id=1, name='신발')
         ShoeCategory.objects.create(id=1, main_category = MainCategory.objects.get(id=1), name='척 70')
-        Detail.objects.create(id=1, main_detail='test', sub_detail='test', feature='test', feature_image='test')
+        Detail.objects.create(id=1, name='test', main_detail='test', sub_detail='test', feature='test', feature_image='test')
         Size.objects.create(id=1, name=220)
         ColorFilter.objects.create(id=1, name='black')
         Color.objects.create(id=1, color_category=ColorFilter.objects.get(id=1),name='블랙')
@@ -150,14 +150,15 @@ class PendingOrderViewTest(TestCase):
         response = client.get('/order/cart', content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
-            "total_price" : "95000.00",
+            "total_price" : "95000",
             "pending_orders" : [
                 {
                     "id" : 1,
                     "image" : "image",
                     "price" : "95000.00",
                     "name" : "test",
-                    "color" : "black",
+                    "color" : "블랙",
+                    "size" : 220,
                     "quantity" : 1
                 }
             ]

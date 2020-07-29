@@ -50,7 +50,8 @@ class Detail(models.Model):
     feature       = models.CharField(max_length = 500)
     feature_image = models.CharField(max_length = 300)
     name          = models.CharField(max_length = 50)
-
+    is_main       = models.BooleanField(default = False)
+    
     class Meta:
         db_table = 'details'
 
@@ -60,7 +61,7 @@ class Shoe(models.Model):
     type_filter         = models.ForeignKey(TypeFilter, on_delete   = models.SET_NULL, null = True)
     detail              = models.ForeignKey(Detail, on_delete = models.SET_NULL, null = True)
     gender_segmentation = models.ForeignKey(GenderSegmentation, on_delete = models.SET_NULL, null = True)
-    price               = models.DecimalField(max_digits = 7, decimal_places =2)
+    price               = models.DecimalField(max_digits = 8, decimal_places=2)
     color               = models.ManyToManyField(Color, through = 'ShoeColor')
 
     class Meta:
@@ -82,17 +83,17 @@ class ShoeColor(models.Model):
         db_table = 'shoes_colors'
 
 class ShoeColorSize(models.Model):
-    shoecolor= models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
-    size     = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
-    quantity = models.IntegerField()
-    
+    shoecolor = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
+    size      = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
+    quantity  = models.IntegerField()
+
     class Meta:
         db_table = 'shoecolor_sizes'
 
 class SubImage(models.Model):
-    shoe_color = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
-    image      = models.CharField(max_length = 300)
-    is_hovered = models.BooleanField(default = False)
+    shoe_color  = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
+    image       = models.CharField(max_length = 300)
+    is_hovered  = models.BooleanField(default = False)
     
     class Meta:
         db_table = 'sub_images'

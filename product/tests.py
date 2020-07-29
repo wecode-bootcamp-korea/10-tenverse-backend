@@ -528,7 +528,6 @@ class ShoeCategoryViewTest(TestCase):
         {
             "product_detail": {
                 "id": 1,
-                "shoe__id": 1,
                 "name": "원스타 프로 피그 스킨",
                 "price": 99000,
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168654C_168654C_pdp-primary.jpg?gallery=",
@@ -551,7 +550,6 @@ class ShoeCategoryViewTest(TestCase):
         {
             "product_detail": {
                 "id": 2,
-                "shoe__id": 1,
                 "name": "원스타 프로 피그 스킨",
                 "price": 99000,
                 "main_image": "https://image.converse.co.kr/cmsstatic/product/168655C_168655C_pdp-primary.jpg?gallery=",

@@ -85,7 +85,7 @@ class OrderViewTest(TestCase):
         order = {
             'id' : 1,
             'size' : 220,
-            'quantity' : 3
+            'quantity' : 1
         }
         response = client.post('/order', json.dumps(order),content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)

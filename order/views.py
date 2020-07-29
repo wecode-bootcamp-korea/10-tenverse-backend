@@ -30,17 +30,16 @@ class OrderView(View):
             )
             if product.quantity < int(data['quantity']):
                 return JsonResponse({'message' : 'OUT_OF_STOCK'}, status=400)
-            user_order = Order.objects.get(user=user, status = OrderStatus.objects.get(name='pending'))
-            with transaction.atomic():
-                ProductOrder.objects.create(
-                    order          = user_order,
-                    product        = product,
-                    order_quantity = int(data['quantity'])
-                )
+            if Order.objects.filter(user=user, status = OrderStatus.objects.get(name='pending')).exists():
+                with transaction.atomic():
+                    ProductOrder.objects.create(
+                        order          = user_order,
+                        product        = product,
+                        order_quantity = int(data['quantity'])
+                    )
                 product.quantity = F('quantity') - data['quantity']
                 product.save()
-            return JsonResponse({'message' : 'SUCCESS'}, status=200)
-        except Order.DoesNotExist:
+                return JsonResponse({'message' : 'SUCCESS'}, status=200)
             with transaction.atomic():
                 user_order = Order.objects.create(user=user, status=OrderStatus.objects.get(name='pending'))
                 ProductOrder.objects.create(
@@ -51,4 +50,6 @@ class OrderView(View):
                 product.quantity = F('quantity') - int(data['quantity'])
                 product.save()
             return JsonResponse({'message' : 'SUCCESS'}, status=200)
+        except KeyError:
+            return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 

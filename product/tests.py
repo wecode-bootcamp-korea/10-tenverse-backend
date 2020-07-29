@@ -524,7 +524,6 @@ class FilterView(TestCase):
                 {
                     "product_detail": {
                         "id": 1,
-                        "shoe__id": 1,
                         "name": "척테일러 올스타 데인티 데님 데이즈",
                         "price": 55000,
                         "main_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_pdp-primary.jpg?gallery=",

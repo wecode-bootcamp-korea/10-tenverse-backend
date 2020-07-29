@@ -105,7 +105,7 @@ class UpdateOrderView(View):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         try:
-            product_order = list(ProductOrder.objects.filter(id=data['id']).prefetch_related("product__shoecolor"))[0]
+            product_order = ProductOrder.objects.get(id=data['id']).prefetch_related("product__shoecolor")
             with transaction.atomic():
                 product_order.product.quantity = product.shoecolor.quantity + (product_order.order_quantity - data['quantity'])
                 product_order.order_quantity = data['quantity']

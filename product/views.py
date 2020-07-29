@@ -21,7 +21,7 @@ from .models import (
 
 class MainPageView(View):
     def get(self, request):
-        shoe = ShoeColor.objects.filter(**{
+        shoes = ShoeColor.objects.filter(**{
             'shoe__detail__is_main' : True,
             'subimage__is_hovered'  : True
         }).annotate(
@@ -32,16 +32,16 @@ class MainPageView(View):
         ).values('id','name', 'price','main_image','sub_image')
         
         shoes = {
-            'women_collection' : list(shoe.filter(shoe__detail__name__contains = '척테일러')),
-            'jack_purcell'      : list(shoe.filter(color__name = '노마드카키')),
-            'pro_leather'       : list(shoe.filter(**{
+            'women_collection' : list(shoes.filter(shoe__detail__name__contains = '척테일러')),
+            'jack_purcell'      : list(shoes.filter(color__name = '노마드카키')),
+            'pro_leather'       : list(shoes.filter(**{
                 'shoe__detail__name__contains' : '잭퍼셀',
                 'color__name'                  : '화이트'
             }))
         }
 
         return JsonResponse({'products' : shoes}, status=200)
-
+        
 class ShoesView(View):
     def get(self, request):
         page = int(request.GET.get('page', 0))
@@ -134,14 +134,15 @@ class FilterView(View):
             'shoe__gender_segmentation__name__in' : genderfilter,
             'shoecolorsize__size__name__in'       : sizefilter,
             'subimage__is_hovered'                : True
-        }).distinct()
-        
-        shoe_values = list(shoes.annotate(
-            name       = F('shoe__detail__name'),
-            price      = F('shoe__price'),
-            main_image = F('image__image'),
-            sub_image  = F('subimage__image')
-        ).values('id','shoe__id', 'name', 'price', 'main_image', 'sub_image')[page*limit:((page+1)*limit)-1])
+        }).prefetch_related(
+            'shoe',
+            'shoe__detail',
+            'image',
+            'subimage_set',
+            'shoe__gender_segmentation',
+            'shoe__type_filter',
+            'shoecolorsize_set__size',
+        ).distinct()
 
         filters = {
             'gender_filters'    : list(shoes.values_list('shoe__gender_segmentation__name',flat=True)),
@@ -150,17 +151,32 @@ class FilterView(View):
             'size_filters'      : list(shoes.values_list('shoecolorsize__size__name',flat=True))
         }
 
-        shoe_list = [{'product_detail' : shoe} for shoe in shoe_values]
-        
+        shoe_list = [
+            {
+                "product_detail" : 
+                {
+                    "id"         : shoe.id,
+                    "shoe__id"   : shoe.shoe.id,
+                    "name"       : shoe.shoe.detail.name,
+                    "price"      : int(shoe.shoe.price),
+                    "main_image" : shoe.image.image,
+                    "sub_image"  : shoe.subimage_set.get(is_hovered=True).image,
+                }} for shoe in shoes[page*limit:((page+1)*limit)-1]]
+
         for shoe in shoe_list:
-            shoe['color_list'] = list(Color.objects.filter(**{
-                'shoecolor__shoe__id'             : shoe['product_detail']['shoe__id'],
-                'shoecolor__subimage__is_hovered' : True
-            }).annotate(
-                shoe_id      = F('shoecolor__id'),
-                color_filter = F('color_category__name'),
-                main_image   = F('shoecolor__image__image'),
-                sub_image    = F('shoecolor__subimage__image')
-            ).values('shoe_id', 'color_filter', 'main_image', 'sub_image'))
-        return JsonResponse({'filters' : filters, 'products' : shoe_list}, status=200)
+            shoe['product_detail']['color_list'] = [{
+                "shoe_id"      : color.shoecolor_set.filter(shoe = shoe['product_detail']['shoe__id']).first().id,
+                "color_filter" : color.color_category.name,
+                "main_image"   : color.shoecolor_set.filter(shoe = shoe['product_detail']['shoe__id']).first().image.image,
+                "sub_image"    : color.shoecolor_set.filter(shoe = shoe['product_detail']['shoe__id']).first().subimage_set.get(is_hovered=True).image
+            } for color in Color.objects.filter(
+                    shoecolor__shoe__id             = shoe['product_detail']['shoe__id'],
+                    shoecolor__subimage__is_hovered = True
+                ).prefetch_related(
+                    'shoecolor_set',
+                    'color_category',
+                    'shoecolor_set__image',
+                    'shoecolor_set__subimage_set'
+            )]
+        return JsonResponse({'filters' : filters, "products" : shoe_list}, status=200)
 

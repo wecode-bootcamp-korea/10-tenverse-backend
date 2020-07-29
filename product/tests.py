@@ -526,11 +526,10 @@ class FilterView(TestCase):
                         "id": 1,
                         "shoe__id": 1,
                         "name": "척테일러 올스타 데인티 데님 데이즈",
-                        "price": "55000.00",
+                        "price": 55000,
                         "main_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_pdp-primary.jpg?gallery=",
-                        "sub_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_3.jpg?browse="
-                    },
-                    "color_list": [
+                        "sub_image": "https://image.converse.co.kr/cmsstatic/product/567872C_567872C_3.jpg?browse=",
+                        "color_list": [
                         {
                             "shoe_id": 1,
                             "color_filter": "indigo",
@@ -539,5 +538,5 @@ class FilterView(TestCase):
                         }
                     ]
                 }
-            ]
-        })
+            }
+            ]})

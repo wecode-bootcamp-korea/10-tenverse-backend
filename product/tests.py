@@ -341,7 +341,10 @@ class MainViewTest(TestCase):
             gender_segmentation = GenderSegmentation.objects.get(name='남녀공용'),
             price               = 99000,
         )
-
+        Size.objects.create(
+            id=1,
+            name=220
+        )
         MainImage.objects.bulk_create([
             MainImage(image = "https://image.converse.co.kr/cmsstatic/product/168695C_168695C_pdp-primary.jpg?gallery="),
             MainImage(image = "https://image.converse.co.kr/cmsstatic/product/168696C_168696C_pdp-primary.jpg?gallery=")
@@ -384,6 +387,7 @@ class MainViewTest(TestCase):
             MainImage.objects.all().delete()
             ShoeColor.objects.all().delete()
             SubImage.objects.all().delete()
+            Size.objects.all().delete()
 
         def test_mainview_success(self):
             
@@ -392,8 +396,22 @@ class MainViewTest(TestCase):
             products = list(ShoeColor.objects.all().values('shoe__price'))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json(), {
+                "filters": {
+                    "gender_filters": [
+                        "남녀공용"
+                    ],
+                    "color_filters": [
+                        "black",
+                        "khaki",
+                    ],
+                    "type_filters": [
+                        "스니커즈"
+                    ],
+                    "size_filters": [
+                        220,
+                    ]},
                 "products" : [
-                    {
+                        {
                         "product_detail" : {
                             "id"         : 1,
                             "shoe__id"   : 1,

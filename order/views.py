@@ -91,11 +91,11 @@ class PendingOrderView(View):
                 "quantity" : order.order_quantity
             } for order in order_list
         ]
-        total_price = order_list.aggregate(
+        total_price = str(order_list.aggregate(
             price = Sum(
                 F('order_quantity')*F('product__shoecolor__shoe__price'),
                 output_field=IntegerField()
-            ))['price']
+            ))['price'])
 
         return JsonResponse({"total_price" : total_price, "pending_orders" : pending_orders}, status=200)
 

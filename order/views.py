@@ -5,7 +5,9 @@ from django.http      import JsonResponse
 from django.db        import transaction
 from django.db.models import (
     F,
-    Count
+    Count,
+    Sum,
+    IntegerField
 )
 
 from .models        import (
@@ -89,5 +91,11 @@ class PendingOrderView(View):
                 "quantity" : order.order_quantity
             } for order in order_list
         ]
-        return JsonResponse({"pending_orders" : pending_orders}, status=200)
+        total_price = order_list.aggregate(
+            price = Sum(
+                F('order_quantity')*F('product__shoecolor__shoe__price'),
+                output_field=IntegerField()
+            ))['price']
+
+        return JsonResponse({"total_price" : total_price, "pending_orders" : pending_orders}, status=200)
 

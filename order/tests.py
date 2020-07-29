@@ -133,8 +133,8 @@ class PendingOrderViewTest(TestCase):
             name = 'test'
         )
         OrderStatus.objects.create(id=1, name="pending")
-        Order.objects.create(id=1, status = OrderStatus.objects.get(name="pending"))
-        ProductOrder.objects.create(id=1, order = Order.objects.get(id=1), product=ShoeColorSize.objects.get(id=1),order_quantity=1)
+        Order.objects.create(id=1,user=User.objects.get(id=1), status = OrderStatus.objects.get(name="pending"))
+        ProductOrder.objects.create(id=1, order = Order.objects.get(id=1), product=ShoeColorSize.objects.get(id=1), order_quantity=1)
 
     def tearDown(self):
         Gender.objects.all().delete()
@@ -147,9 +147,10 @@ class PendingOrderViewTest(TestCase):
         client = Client()
         header = {"HTTP_Authorization" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.6mlhvmw9MyBvInOVrhOnQNizB8iPI47xZ_2sC1gUcXs"}
         
-        response = client.get('/order/cart',content_type = 'application/json', **header)
+        response = client.get('/order/cart', content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
+            "total_price" : "95000.00",
             "pending_orders" : [
                 {
                     "id" : 1,

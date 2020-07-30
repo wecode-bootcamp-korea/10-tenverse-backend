@@ -152,7 +152,7 @@ class FilterView(View):
         else:
             colorfilter  = request.GET.getlist(
                 'color',
-                list(ColorFilter.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
+                list(ColorFilter.objects.filter(color__shoecolor__shoe__shoe_category__name = category_name).values_list('name', flat = True))
             )
             typefilter   = request.GET.getlist(
                 'type',
@@ -167,39 +167,21 @@ class FilterView(View):
                 list(Size.objects.filter(shoecolor__shoe__shoe_category__name = category_name).values_list('name', flat = True))
             )
             
-            if namefilter:
-                shoes = ShoeColor.objects.filter(
-                    shoe__shoe_category__name           = category_name,
-                    shoe__detail__name__contains        = namefilter,
-                    color__color_category__name__in     = colorfilter,
-                    shoe__type_filter__name__in         = typefilter,
-                    shoe__gender_segmentation__name__in = genderfilter,
-                    shoecolorsize__size__name__in       = sizefilter
-                ).prefetch_related(
-                    'shoe',
-                    'shoe__detail',
-                    'image',
-                    'subimage_set',
-                    'shoe__gender_segmentation',
-                    'shoe__type_filter',
-                    'shoecolorsize_set__size'
-                ).distinct()
-            else:
-                shoes = ShoeColor.objects.filter(
-                    shoe__shoe_category__name           = category_name,
-                    color__color_category__name__in     = colorfilter,
-                    shoe__type_filter__name__in         = typefilter,
-                    shoe__gender_segmentation__name__in = genderfilter,
-                    shoecolorsize__size__name__in       = sizefilter,
-                ).prefetch_related(
-                    'shoe',
-                    'shoe__detail',
-                    'image',
-                    'subimage_set',
-                    'shoe__gender_segmentation',
-                    'shoe__type_filter',
-                    'shoecolorsize_set__size',
-                ).distinct()
+            shoes = ShoeColor.objects.filter(
+                shoe__shoe_category__name           = category_name,
+                color__color_category__name__in     = colorfilter,
+                shoe__type_filter__name__in         = typefilter,
+                shoe__gender_segmentation__name__in = genderfilter,
+                shoecolorsize__size__name__in       = sizefilter,
+            ).prefetch_related(
+                'shoe',
+                'shoe__detail',
+                'image',
+                'subimage_set',
+                'shoe__gender_segmentation',
+                'shoe__type_filter',
+                'shoecolorsize_set__size',
+            ).distinct()
         
         filters = {
             'gender_filters'    : list(shoes.values_list('shoe__gender_segmentation__name',flat=True)),

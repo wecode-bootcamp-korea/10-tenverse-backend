@@ -11,8 +11,7 @@ from .views import (
 urlpatterns = [
     path('', MainPageView.as_view()),
     path('/detail/<product_id>', DetailView.as_view()),
+    path('/search', SearchBarView.as_view()),
     path('/<category_name>', ShoeCategoryView.as_view()),
     path('/<category_name>/filter', FilterView.as_view()),
-    path('/mainpage', MainPageView.as_view()),
-    path('/search', SearchBarView.as_view())
 ]

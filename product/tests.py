@@ -390,17 +390,17 @@ class ShoeCategoryViewTest(TestCase):
         self.assertEqual(response.status_code, 200),
         self.assertEqual(response.json(),{
     "filters": {
-        "genders": [
+        "gender_filters": [
             "남녀공용"
         ],
-        "colors": [
+        "color_filters": [
             "green",
             "indigo"
         ],
-        "types": [
+        "type_filters": [
             "스니커즈"
         ],
-        "sizes": [
+        "size_filters": [
             220
         ]
     },

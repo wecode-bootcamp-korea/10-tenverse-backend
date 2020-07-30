@@ -73,7 +73,7 @@ class ShoesView(View):
             "image",
             "subimage_set",
             "shoe__detail"
-        )[page*limit:((page+1)*limit)-1]
+        )[page*limit:(page+1)*limit]
         
         shoe_list = [{
             "product_detail" : {

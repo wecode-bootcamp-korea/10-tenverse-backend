@@ -90,6 +90,7 @@ class PendingOrderView(View):
         
         pending_orders = [
             {
+                "order_id" : order.id,
                 "id"       : order.product.id,
                 "image"    : order.product.shoecolor.image.image,
                 "name"     : order.product.shoecolor.shoe.detail.name,
@@ -100,7 +101,12 @@ class PendingOrderView(View):
             } for order in order_list
         ]
 
-        return JsonResponse({"pending_orders" : pending_orders}, status=200)
+        total_price = int(order_list.aggregate(
+            price = Sum(
+                F('order_quantity')*F('product__shoecolor__shoe__price'),
+                output_field = IntegerField()
+            ))['price']) 
+        return JsonResponse({"total_price" : total_price, "pending_orders" : pending_orders}, status=200)
 
 class UpdateOrderView(View):
     @login_required
@@ -108,9 +114,13 @@ class UpdateOrderView(View):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         try:
-            product_order = ProductOrder.objects.filter(id=data['id']).prefetch_related("product__shoecolor").first()
-            product_order.order_quantity = data['quantity']
-            product_order.save()
+            product_order = ProductOrder.objects.filter(id=data['order_id']).prefetch_related("product__shoecolor").first()
+            if data['calculate'] == 'plus':
+                product_order.order_quantity += 1
+                product_order.save()
+            elif data['calculate'] == 'minus':
+                product_order.order_quantity -= 1
+                product_order.save()
 
             order_list = ProductOrder.objects.filter(
                 order = Order.objects.get(
@@ -128,6 +138,7 @@ class UpdateOrderView(View):
 
             pending_orders = [
                 {
+                    "order_id" : order.id,
                     "id"       : order.product.id,
                     "image"    : order.product.shoecolor.image.image,
                     "name"     : order.product.shoecolor.shoe.detail.name,
@@ -138,7 +149,12 @@ class UpdateOrderView(View):
                 } for order in order_list
             ]
 
-            return JsonResponse({'pending_orders' : pending_orders}, status=200)
+            total_price = int(order_list.aggregate(
+                price = Sum(
+                    F('order_quantity')*F('product__shoecolor__shoe__price'),
+                    output_field = IntegerField()
+                ))['price']) 
+            return JsonResponse({'total_price' : total_price, 'pending_orders' : pending_orders}, status=200)
         except KeyError:
             return JsonResponse({'message' : 'KEY_Error'}, status=400)
 

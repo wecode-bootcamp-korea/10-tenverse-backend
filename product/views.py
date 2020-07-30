@@ -11,7 +11,6 @@ from .models import (
     TypeFilter,
     GenderSegmentation,
     Detail,
-    Shoe,
     ShoeColorSize,
     MainImage,
     ShoeColor,
@@ -153,7 +152,7 @@ class FilterView(View):
         else:
             colorfilter  = request.GET.getlist(
                 'color',
-                list(ColorFIlter.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
+                list(ColorFilter.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
             )
             typefilter   = request.GET.getlist(
                 'type',
@@ -269,10 +268,10 @@ class ShoeCategoryView(View):
             )[page*limit:((page+1)*limit)]
 
             filters = {
-                'genders' : [gender['name'] for gender in GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
-                'colors'  : [color['name'] for color in ColorFilter.objects.filter(color__shoe__shoe_category__name = category_name).values('name').distinct()],
-                'types'   : [type_filter['name'] for type_filter in TypeFilter.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
-                'sizes'   : [size['name'] for size in Size.objects.filter(shoecolorsize__shoecolor__shoe__shoe_category__name = category_name).values('name').distinct()]
+                'gender_filters' : [gender['name'] for gender in GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
+                'color_filters'  : [color['name'] for color in ColorFilter.objects.filter(color__shoe__shoe_category__name = category_name).values('name').distinct()],
+                'type_filters'   : [type_filter['name'] for type_filter in TypeFilter.objects.filter(shoe__shoe_category__name = category_name).values('name').distinct()],
+                'size_filters'   : [size['name'] for size in Size.objects.filter(shoecolorsize__shoecolor__shoe__shoe_category__name = category_name).values('name').distinct()]
             }
 
         shoe_list = [{

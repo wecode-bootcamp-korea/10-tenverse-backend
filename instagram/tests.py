@@ -20,7 +20,7 @@ class InstagramViewTest(TestCase):
 
     def test_instagramview_success(self):
         client = Client()
-        response = client.get('/instagram')
+        response = client.get('/instagram?page=0&limit=8')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(),{
             "posts" : [

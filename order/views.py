@@ -5,7 +5,6 @@ from django.http      import JsonResponse
 from django.db        import transaction
 from django.db.models import (
     F,
-    Count,
     Sum,
     IntegerField
 )
@@ -39,17 +38,16 @@ class OrderView(View):
                 return JsonResponse({'message' : 'OUT_OF_STOCK'}, status=400)
             if Order.objects.filter(user=user, status = OrderStatus.objects.get(name='pending')).exists():
                 user_order = Order.objects.get(user=user, status = OrderStatus.objects.get(name='pending'))
-                if ProductOrder.objects.filter(order=user_order, product=product, order_quantity = int(data['quantity'])).exists():
-                    order = ProductOrder.objects.filter(
+                if ProductOrder.objects.filter(order=user_order, product=product).exists():
+                    order = ProductOrder.objects.get(
                         order          = user_order,
                         product        = product,
-                        order_quantity = int(data['quantity'])
-                    ).prefetch_related("product")
+                    )
                     with transaction.atomic():
                         order.order_quantity = F('order_quantity') + data['quantity']
-                        product.quantity = F('order.product.quantity') - data['quantity']
-                        order.save()
+                        product.quantity = F('quantity') - data['quantity']
                         product.save()
+                        order.save()
                         return JsonResponse({'message' : 'SUCCESS'}, status=200)
                 with transaction.atomic():
                     order = ProductOrder.objects.create(
@@ -179,7 +177,16 @@ class DeleteOrderView(View):
     def post(self, request, user_id):
         user = User.objects.get(id=user_id)
         if Order.objects.filter(user=user, status=OrderStatus.objects.get(name='pending')).exists():
-            Order.objects.get(user=user, status= OrderStatus.objects.get(name='pending')).delete()
-            return JsonResponse({'pending_orders' : []}, status=200)
+            orders = ProductOrder.objects.filter(
+                order = Order.objects.get(
+                    user   = user,
+                    status = OrderStatus.objects.get(name = 'pending')
+                )).prefetch_related("product", "order")
+            with transaction.atomic():
+                for order in orders:
+                    order.product.quantity += order.order_quantity
+                    order.product.save()
+                Order.objects.get(user=user, status=OrderStatus.objects.get(name='pending')).delete()
+                return JsonResponse({'pending_orders' : []}, status=200)
         return JsonResponse({'message' : 'NON_EXISTING_ORDER'}, status=400)
 

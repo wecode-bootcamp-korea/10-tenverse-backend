@@ -55,7 +55,7 @@ class MainPageView(View):
             )]
         }
         return JsonResponse({'products' : shoe_list}, status=200)
-
+        
 class DetailView(View):
     def get(self, request, product_id):
         try:
@@ -106,6 +106,139 @@ class DetailView(View):
             return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'}, status=400)
         except ValueError:
             return JsonResponse({'message' : 'VALUE_ERROR'}, status=400)
+
+class FilterView(View):
+    def get(self, request, category_name):
+        page = int(request.GET.get('page', 0))
+        limit = int(request.GET.get('limit', 20))
+        namefilter = request.GET.get('name', None)
+        if category_name == 'shoes':
+            colorfilter  = request.GET.getlist('color', list(ColorFilter.objects.all().values_list('name', flat=True)))
+            typefilter   = request.GET.getlist('type', list(TypeFilter.objects.all().values_list('name', flat=True)))
+            genderfilter = request.GET.getlist('gender', list(GenderSegmentation.objects.all().values_list('name', flat=True)))
+            sizefilter   = request.GET.getlist('size', list(Size.objects.all().values_list('name', flat=True)))
+        
+            if namefilter:
+                shoes = ShoeColor.objects.filter(
+                    shoe__detail__name__contains        = namefilter,
+                    color__color_category__name__in     = colorfilter,
+                    shoe__type_filter__name__in         = typefilter,
+                    shoe__gender_segmentation__name__in = genderfilter,
+                    shoecolorsize__size__name__in       = sizefilter
+                ).prefetch_related(
+                    'shoe',
+                    'shoe__detail',
+                    'image',
+                    'subimage_set',
+                    'shoe__gender_segmentation',
+                    'shoe__type_filter',
+                    'shoecolorsize_set__size'
+                ).distinct()
+            else:
+                shoes = ShoeColor.objects.filter(
+                    color__color_category__name__in     = colorfilter,
+                    shoe__type_filter__name__in         = typefilter,
+                    shoe__gender_segmentation__name__in = genderfilter,
+                    shoecolorsize__size__name__in       = sizefilter,
+                ).prefetch_related(
+                    'shoe',
+                    'shoe__detail',
+                    'image',
+                    'subimage_set',
+                    'shoe__gender_segmentation',
+                    'shoe__type_filter',
+                    'shoecolorsize_set__size',
+                ).distinct()
+
+        else:
+            colorfilter  = request.GET.getlist(
+                'color',
+                list(ColorFIlter.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
+            )
+            typefilter   = request.GET.getlist(
+                'type',
+                list(TypeFilter.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
+            )
+            genderfilter = request.GET.getlist(
+                'gender',
+                list(GenderSegmentation.objects.filter(shoe__shoe_category__name = category_name).values_list('name', flat = True))
+            )
+            sizefilter   = request.GET.getlist(
+                'size',
+                list(Size.objects.filter(shoecolor__shoe__shoe_category__name = category_name).values_list('name', flat = True))
+            )
+            
+            if namefilter:
+                shoes = ShoeColor.objects.filter(
+                    shoe__shoe_category__name           = category_name,
+                    shoe__detail__name__contains        = namefilter,
+                    color__color_category__name__in     = colorfilter,
+                    shoe__type_filter__name__in         = typefilter,
+                    shoe__gender_segmentation__name__in = genderfilter,
+                    shoecolorsize__size__name__in       = sizefilter
+                ).prefetch_related(
+                    'shoe',
+                    'shoe__detail',
+                    'image',
+                    'subimage_set',
+                    'shoe__gender_segmentation',
+                    'shoe__type_filter',
+                    'shoecolorsize_set__size'
+                ).distinct()
+            else:
+                shoes = ShoeColor.objects.filter(
+                    shoe__shoe_category__name           = category_name,
+                    color__color_category__name__in     = colorfilter,
+                    shoe__type_filter__name__in         = typefilter,
+                    shoe__gender_segmentation__name__in = genderfilter,
+                    shoecolorsize__size__name__in       = sizefilter,
+                ).prefetch_related(
+                    'shoe',
+                    'shoe__detail',
+                    'image',
+                    'subimage_set',
+                    'shoe__gender_segmentation',
+                    'shoe__type_filter',
+                    'shoecolorsize_set__size',
+                ).distinct()
+        
+        filters = {
+            'gender_filters'    : list(shoes.values_list('shoe__gender_segmentation__name',flat=True)),
+            'color_filters'     : [color.name for color in ColorFilter.objects.all()],
+            'type_filters'      : list(shoes.values_list('shoe__type_filter__name',flat=True)),
+            'size_filters'      : list(shoes.values_list('shoecolorsize__size__name',flat=True))
+        }
+
+        shoe_list = [
+            {
+                "product_detail" : 
+                {
+                    "id"         : shoe.id,
+                    "name"       : shoe.shoe.detail.name,
+                    "price"      : int(shoe.shoe.price),
+                    "main_image" : shoe.image.image,
+                    "sub_image"  : shoe.subimage_set.get(is_hovered=True).image,
+                    "color_list" : [{
+                        "shoe_id"      : color.shoecolor_set.filter(shoe__id=shoe.shoe.id).first().id,
+                        "color_filter" : color.color_category.name,
+                        "main_image"   : color.shoecolor_set.filter(shoe__id=shoe.shoe.id).first().image.image,
+                        "sub_image"    : color.shoecolor_set.filter(shoe__id=shoe.shoe.id).first().subimage_set.get(is_hovered=True).image
+                    } for color in Color.objects.filter(
+                        shoecolor__shoe__id = shoe.shoe.id
+                    ).prefetch_related(
+                        "shoecolor_set",
+                        "color_category",
+                        "shoecolor_set__image",
+                        "shoecolor_set__subimage_set"
+                    )]
+                }} for shoe in shoes[page*limit:((page+1)*limit)]]
+
+        return JsonResponse({'filters' : filters, "products" : shoe_list}, status=200)
+
+class SearchBarView(View):
+    def get(self, request):
+        shoe_list = [shoe.name for shoe in Detail.objects.all()]
+        return JsonResponse({'products' : shoe_list}, status=200)
 
 class ShoeCategoryView(View):
     def get(self, request, category_name):

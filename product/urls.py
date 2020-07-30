@@ -1,13 +1,18 @@
 from django.urls import path
 
 from .views import (
-    ShoeCategoryView,
+    DetailView,
+    FilterView,
     MainPageView,
-    DetailView
+    SearchBarView,
+    ShoeCategoryView
 )
 
 urlpatterns = [
-    path('/<category_name>', ShoeCategoryView.as_view()),
-    path('/detail/<product_id>', DetailView.as_view()),
     path('', MainPageView.as_view()),
+    path('/detail/<product_id>', DetailView.as_view()),
+    path('/<category_name>', ShoeCategoryView.as_view()),
+    path('/<category_name>/filter', FilterView.as_view()),
+    path('/mainpage', MainPageView.as_view()),
+    path('/search', SearchBarView.as_view())
 ]

@@ -116,6 +116,8 @@ class UpdateOrderView(View):
         user = User.objects.get(id=user_id)
         try:
             product_order = ProductOrder.objects.filter(id=data['id']).prefetch_related("product__shoecolor").first()
+            if product_order.product.quantity < data['quantity']:
+                return JsonResponse({'message' : 'OUT_OF_STOCK'}, status=400)
             with transaction.atomic():
                 product_order.product.quantity += (product_order.order_quantity - data['quantity'])
                 product_order.order_quantity = data['quantity']

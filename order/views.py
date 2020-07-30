@@ -66,6 +66,11 @@ class PendingOrderView(View):
     @login_required
     def get(self, request, user_id):
         user = User.objects.get(id=user_id)
+        if not Order.objects.filter(
+                user   = User.objects.get(id = user_id),
+                status = OrderStatus.objects.get(name = "pending")
+        ).exists():
+            return JsonResponse({'pending_orders' : []}, status=200)
         order_list = ProductOrder.objects.filter(
             order = Order.objects.get(
                 user   = User.objects.get(id = user_id),
@@ -79,7 +84,7 @@ class PendingOrderView(View):
             "product__size",
             "product__shoecolor__image"
         )
-
+        
         pending_orders = [
             {
                 "id"       : order.product.id,
@@ -91,6 +96,7 @@ class PendingOrderView(View):
                 "quantity" : order.order_quantity
             } for order in order_list
         ]
+
         total_price = int(order_list.aggregate(
             price = Sum(
                 F('order_quantity')*F('product__shoecolor__shoe__price'),
@@ -111,7 +117,8 @@ class UpdateOrderView(View):
                 product_order.order_quantity = data['quantity']
                 product_order.product.quantity.save()
                 product_order.order_quantity.save()
-            return JsonResponse({'message' : 'KeyError'}, status=200)
+            return JsonResponse({'message' : 'SUCCESS'}, status=200)
         except KeyError:
             return JsonResponse({'message' : 'KeyError'}, status=400)
 
+class DeleteOrder(View):

@@ -35,32 +35,36 @@ class OrderView(View):
             )
             if product.quantity < int(data['quantity']):
                 return JsonResponse({'message' : 'OUT_OF_STOCK'}, status=400)
-            user_order = Order.objects.get(user=user, status = OrderStatus.objects.get(name='pending'))
-            with transaction.atomic():
-                try:
-                    order = ProductOrder.objects.get(order = user_order, product = product, order_quantity = int(data['quantity']))
-                    order.order_quantity = F('order_quantity') + data['quantity']
-                    order.save()
-                except ProductOrder.DoesNotExist:
+            if Order.objects.filter(user=user, status = OrderStatus.objects.get(name='pending')).exists():
+                user_order = Order.objects.get(user=user, status = OrderStatus.objects.get(name='pending'))
+            
+                with transaction.atomic():
+                    if ProductOrder.objects.filter(order=user_order, product=product, order_quantity = int(data['quantity'])).exists():
+                        order = ProductOrder.objects.get(order = user_order, product = product, order_quantity = int(data['quantity']))
+                        order.order_quantity = F('order_quantity') + data['quantity']
+                        order.save()
+                    else:
+                        ProductOrder.objects.create(
+                            order          = user_order,
+                            product        = product,
+                            order_quantity = int(data['quantity'])
+                        )
+                    product.quantity = F('quantity') - data['quantity']
+                    product.save()
+                return JsonResponse({'message' : 'SUCCESS'}, status=200)
+            else:
+                with transaction.atomic():
+                    user_order = Order.objects.create(user=user, status=OrderStatus.objects.get(name='pending'))
                     ProductOrder.objects.create(
                         order          = user_order,
                         product        = product,
                         order_quantity = int(data['quantity'])
                     )
-                product.quantity = F('quantity') - data['quantity']
-                product.save()
-            return JsonResponse({'message' : 'SUCCESS'}, status=200)
-        except Order.DoesNotExist:
-            with transaction.atomic():
-                user_order = Order.objects.create(user=user, status=OrderStatus.objects.get(name='pending'))
-                ProductOrder.objects.create(
-                    order          = user_order,
-                    product        = product,
-                    order_quantity = int(data['quantity'])
-                )
-                product.quantity = F('quantity') - int(data['quantity'])
-                product.save()
-            return JsonResponse({'message' : 'SUCCESS'}, status=200)
+                    product.quantity = F('quantity') - int(data['quantity'])
+                    product.save()
+                return JsonResponse({'message' : 'SUCCESS'}, status=200)
+        except KeyError:
+            return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
 
 class PendingOrderView(View):
     @login_required
@@ -111,14 +115,22 @@ class UpdateOrderView(View):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         try:
-            product_order = ProductOrder.objects.get(id=data['id']).prefetch_related("product__shoecolor")
+            product_order = ProductOrder.objects.filter(id=data['id']).prefetch_related("product__shoecolor").first()
             with transaction.atomic():
-                product_order.product.quantity = product.shoecolor.quantity + (product_order.order_quantity - data['quantity'])
+                product_order.product.quantity += (product_order.order_quantity - data['quantity'])
                 product_order.order_quantity = data['quantity']
-                product_order.product.quantity.save()
-                product_order.order_quantity.save()
+                product_order.product.save()
+                product_order.save()
             return JsonResponse({'message' : 'SUCCESS'}, status=200)
         except KeyError:
             return JsonResponse({'message' : 'KeyError'}, status=400)
 
 class DeleteOrder(View):
+    @login_required
+    def get(self, request, user_id):
+        data = json.loads(request.body)
+        user = User.objects.get(id=user_id)
+        if Order.objects.filter(user=user, status=OrderStatus.objects.get(name='pending')).exists():
+            Order.objects.get(user=user, status= OrderStatus.objects.get(name='pending')).delete()
+            return JsonResponse({'message' : 'SUCCESS'}, status=200)
+        return JsonResponse({'message' : 'NON_EXISTING_ORDER'}, status=400)

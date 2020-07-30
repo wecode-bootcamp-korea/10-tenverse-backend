@@ -161,7 +161,6 @@ class PendingOrderViewTest(TestCase):
         response = client.get('/order/cart', content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
-            "total_price" : 95000,
             "pending_orders" : [
                 {
                     "id" : 1,

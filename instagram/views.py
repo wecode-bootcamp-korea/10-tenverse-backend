@@ -5,6 +5,8 @@ from .models import Instagram
 
 class InstagramView(View):
     def get(self, request):
-        posts = Instagram.objects.all().values()
+        page = int(request.GET.get('page', 0))
+        limit = int(request.GET.get('limit',20))
+        posts = Instagram.objects.all().values()[page*limit:((page+1)*limit)-1]
         return JsonResponse({'posts' : list(posts)}, status=200)
 

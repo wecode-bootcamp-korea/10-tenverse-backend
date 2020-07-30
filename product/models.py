@@ -77,7 +77,7 @@ class ShoeColor(models.Model):
     shoe  = models.ForeignKey(Shoe, on_delete = models.SET_NULL, null = True)
     color = models.ForeignKey(Color, on_delete = models.SET_NULL, null = True)
     image = models.OneToOneField(MainImage, on_delete = models.SET_NULL, null = True)
-    size  = models.ManyToManyField(Size, through = 'ShoeColorSize')    
+    size  = models.ManyToManyField(Size, through = 'ShoeColorSize')
     
     class Meta:
         db_table = 'shoes_colors'
@@ -86,7 +86,7 @@ class ShoeColorSize(models.Model):
     shoecolor = models.ForeignKey(ShoeColor, on_delete = models.SET_NULL, null = True)
     size      = models.ForeignKey(Size, on_delete = models.SET_NULL, null = True)
     quantity  = models.IntegerField()
-
+    
     class Meta:
         db_table = 'shoecolor_sizes'
 

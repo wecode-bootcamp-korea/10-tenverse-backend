@@ -246,7 +246,17 @@ class UpdateOrderViewTest(TestCase):
         }
         response = client.post('/order/update', json.dumps(data), content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"message" : "SUCCESS"})
+        self.assertEqual(response.json(), {"pending_orders" : [
+            {
+                "id" : 1,
+                "image" : "image",
+                "name" : "test",
+                "price" : 95000,
+                "color" : "블랙",
+                "size" : 220,
+                "quantity" : 2
+            }
+        ]})
 
 class DeleteOrderViewTest(TestCase):
     maxDiff = None
@@ -310,10 +320,10 @@ class DeleteOrderViewTest(TestCase):
         Order.objects.all().delete()
         ProductOrder.objects.all().delete()
 
-    def test_updateorderview_test(self):
+    def test_deleteorderview_test(self):
         client = Client()
 
         header = {"HTTP_Authorization" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.6mlhvmw9MyBvInOVrhOnQNizB8iPI47xZ_2sC1gUcXs"}
         response = client.post('/order/delete', content_type='application/json',**header)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {'message' : 'SUCCESS'})
+        self.assertEqual(response.json(), {'pending_orders' : []})

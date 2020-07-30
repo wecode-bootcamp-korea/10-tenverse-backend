@@ -125,9 +125,9 @@ class UpdateOrderView(View):
         except KeyError:
             return JsonResponse({'message' : 'KeyError'}, status=400)
 
-class DeleteOrder(View):
+class DeleteOrderView(View):
     @login_required
-    def get(self, request, user_id):
+    def post(self, request, user_id):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         if Order.objects.filter(user=user, status=OrderStatus.objects.get(name='pending')).exists():

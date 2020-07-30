@@ -29,6 +29,8 @@ class OrderView(View):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         try:
+            if not ShoeColorSize.objects.filter(shoecolor = ShoeColor.objects.get(id=data['id']), size = Size.objects.get(name=data['size'])).exists():
+                return JsonResponse({'message' : 'NON_EXISTING_PRODUCT'}, status = 401)
             product = ShoeColorSize.objects.get(
                 shoecolor = ShoeColor.objects.get(id = data['id']),
                 size    = Size.objects.get(name=data['size'])

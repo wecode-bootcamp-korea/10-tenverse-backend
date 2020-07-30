@@ -5,6 +5,7 @@ from .views import (
     DetailView,
     FilterView,
     MainPageView,
+    SearchBarView
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path('/detail/<product_id>', DetailView.as_view()),
     path('/filter', FilterView.as_view()),
     path('/mainpage', MainPageView.as_view()),
+    path('/search', SearchBarView.as_view())
 ]

@@ -176,3 +176,7 @@ class FilterView(View):
 
         return JsonResponse({'filters' : filters, "products" : shoe_list}, status=200)
 
+class SearchBarView(View):
+    def get(self, request):
+        shoe_list = [shoe.name for shoe in Detail.objects.all()]
+        return JsonResponse({'products' : shoe_list}, status=200)

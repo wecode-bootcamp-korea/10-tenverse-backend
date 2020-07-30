@@ -161,8 +161,10 @@ class PendingOrderViewTest(TestCase):
         response = client.get('/order/cart', content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
+            "total_price" : 95000,
             "pending_orders" : [
                 {
+                    "order_id" : 1,
                     "id" : 1,
                     "image" : "image",
                     "price" : 95000,
@@ -241,13 +243,16 @@ class UpdateOrderViewTest(TestCase):
 
         header = {"HTTP_Authorization" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxfQ.6mlhvmw9MyBvInOVrhOnQNizB8iPI47xZ_2sC1gUcXs"}
         data = {
-            "id" : 1,
-            "quantity" : 2
+            "order_id" : 1,
+            "calculate" : "plus"
         }
         response = client.post('/order/update', json.dumps(data), content_type = 'application/json', **header)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"pending_orders" : [
+        self.assertEqual(response.json(), {
+            "total_price" : 190000,
+            "pending_orders" : [
             {
+                "order_id" : 1,
                 "id" : 1,
                 "image" : "image",
                 "name" : "test",

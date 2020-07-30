@@ -118,7 +118,7 @@ class FilterView(View):
             genderfilter = request.GET.getlist('gender', list(GenderSegmentation.objects.all().values_list('name', flat=True)))
             sizefilter   = request.GET.getlist('size', list(Size.objects.all().values_list('name', flat=True)))
         
-            if namefilter != None:
+            if namefilter:
                 shoes = ShoeColor.objects.filter(
                     shoe__detail__name__contains        = namefilter,
                     color__color_category__name__in     = colorfilter,
@@ -168,7 +168,7 @@ class FilterView(View):
                 list(Size.objects.filter(shoecolor__shoe__shoe_category__name = category_name).values_list('name', flat = True))
             )
             
-            if namefilter != None:
+            if namefilter:
                 shoes = ShoeColor.objects.filter(
                     shoe__shoe_category__name           = category_name,
                     shoe__detail__name__contains        = namefilter,

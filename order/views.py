@@ -40,20 +40,27 @@ class OrderView(View):
             if Order.objects.filter(user=user, status = OrderStatus.objects.get(name='pending')).exists():
                 user_order = Order.objects.get(user=user, status = OrderStatus.objects.get(name='pending'))
                 if ProductOrder.objects.filter(order=user_order, product=product, order_quantity = int(data['quantity'])).exists():
-                    order = ProductOrder.objects.get(
+                    order = ProductOrder.objects.filter(
+                        order          = user_order,
+                        product        = product,
+                        order_quantity = int(data['quantity'])
+                    ).prefetch_related("product")
+                    with transaction.atomic():
+                        order.order_quantity = F('order_quantity') + data['quantity']
+                        product.quantity = F('order.product.quantity') - data['quantity']
+                        order.save()
+                        product.save()
+                        return JsonResponse({'message' : 'SUCCESS'}, status=200)
+                with transaction.atomic():
+                    order = ProductOrder.objects.create(
                         order          = user_order,
                         product        = product,
                         order_quantity = int(data['quantity'])
                     )
-                    order.order_quantity = F('order_quantity') + data['quantity']
+                    product.quantity = F('quantity') - data['quantity']
                     order.save()
+                    product.save()
                     return JsonResponse({'message' : 'SUCCESS'}, status=200)
-                ProductOrder.objects.create(
-                    order          = user_order,
-                    product        = product,
-                    order_quantity = int(data['quantity'])
-                )
-                return JsonResponse({'message' : 'SUCCESS'}, status=200)
             with transaction.atomic():
                 user_order = Order.objects.create(user=user, status=OrderStatus.objects.get(name='pending'))
                 ProductOrder.objects.create(
@@ -61,6 +68,7 @@ class OrderView(View):
                     product        = product,
                     order_quantity = int(data['quantity'])
                 )
+                product.quantity = F('quantity') - data['quantity']
                 return JsonResponse({'message' : 'SUCCESS'}, status=200)
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
@@ -114,13 +122,21 @@ class UpdateOrderView(View):
         data = json.loads(request.body)
         user = User.objects.get(id=user_id)
         try:
-            product_order = ProductOrder.objects.filter(id=data['order_id']).prefetch_related("product__shoecolor").first()
+            product_order = ProductOrder.objects.filter(id=data['order_id']).prefetch_related("product", "product__shoecolor").first()
             if data['calculate'] == 'plus':
-                product_order.order_quantity += 1
-                product_order.save()
+                if product_order.product.quantity == 0:
+                    return JsonResponse({'message' : 'OUT_OF_STOCK'}, status=400)
+                with transaction.atomic():
+                    product_order.order_quantity += 1
+                    product_order.product.quantity -= 1
+                    product_order.product.save()
+                    product_order.save()
             elif data['calculate'] == 'minus':
-                product_order.order_quantity -= 1
-                product_order.save()
+                with transaction.atomic():
+                    product_order.order_quantity -= 1
+                    product_order.product.quantity += 1
+                    product_order.product.save()
+                    product_order.save()
 
             order_list = ProductOrder.objects.filter(
                 order = Order.objects.get(
